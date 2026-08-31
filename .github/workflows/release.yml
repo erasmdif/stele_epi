@@ -1,0 +1,197 @@
+name: Release Builds
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r desktop/requirements.txt
+
+      - name: Create macOS app bundle
+        run: |
+          mkdir -p Stele.app/Contents/MacOS
+          mkdir -p Stele.app/Contents/Resources
+          
+          # Copia venv e codice
+          python -m venv Stele.app/Contents/MacOS/venv
+          source Stele.app/Contents/MacOS/venv/bin/activate
+          pip install -r desktop/requirements.txt
+          
+          # Copia sorgenti
+          cp -r desktop/stele_app Stele.app/Contents/MacOS/
+          cp desktop/launcher.py Stele.app/Contents/MacOS/
+          cp desktop/run.py Stele.app/Contents/MacOS/
+          cp desktop/requirements.txt Stele.app/Contents/MacOS/
+          
+          # Crea launcher script
+          cat > Stele.app/Contents/MacOS/Stele << 'LAUNCHER'
+          #!/bin/bash
+          DIR="$(cd "$(dirname "$0")" && pwd)"
+          "$DIR/venv/bin/python" "$DIR/launcher.py"
+          LAUNCHER
+          chmod +x Stele.app/Contents/MacOS/Stele
+          
+          # Info.plist
+          cat > Stele.app/Contents/Info.plist << 'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleDevelopmentRegion</key>
+            <string>en</string>
+            <key>CFBundleExecutable</key>
+            <string>Stele</string>
+            <key>CFBundleIdentifier</key>
+            <string>org.erasmdif.stele-desktop</string>
+            <key>CFBundleInfoDictionaryVersion</key>
+            <string>6.0</string>
+            <key>CFBundleName</key>
+            <string>Stele Desktop</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleShortVersionString</key>
+            <string>1.0</string>
+            <key>CFBundleVersion</key>
+            <string>1</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+          </dict>
+          </plist>
+          PLIST
+          
+          # Zipa
+          zip -qr Stele-macOS.zip Stele.app
+
+      - name: Upload macOS
+        uses: softprops/action-gh-release@v1
+        with:
+          files: Stele-macOS.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r desktop/requirements.txt
+
+      - name: Create Windows package
+        shell: pwsh
+        run: |
+          # Crea cartella Stele
+          New-Item -ItemType Directory -Path Stele -Force | Out-Null
+          
+          # Copia venv e codice
+          python -m venv Stele\venv
+          & .\Stele\venv\Scripts\pip install -r desktop\requirements.txt
+          
+          Copy-Item -Path desktop\stele_app -Destination Stele\ -Recurse
+          Copy-Item -Path desktop\launcher.py -Destination Stele\
+          Copy-Item -Path desktop\run.py -Destination Stele\
+          Copy-Item -Path desktop\requirements.txt -Destination Stele\
+          
+          # Launcher batch file
+          @"
+          @echo off
+          cd /d "%~dp0"
+          venv\Scripts\python.exe launcher.py %*
+          "@" | Out-File -FilePath "Stele\Stele.bat" -Encoding ASCII
+          
+          # Zipa
+          Compress-Archive -Path Stele -DestinationPath Stele-Windows.zip
+
+      - name: Upload Windows
+        uses: softprops/action-gh-release@v1
+        with:
+          files: Stele-Windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r desktop/requirements.txt
+
+      - name: Create Linux package
+        run: |
+          set -e
+          
+          # Crea cartella Stele
+          mkdir -p Stele
+          
+          # Copia venv e codice
+          python -m venv Stele/venv
+          source Stele/venv/bin/activate
+          pip install -r desktop/requirements.txt
+          deactivate
+          
+          cp -r desktop/stele_app Stele/
+          cp desktop/launcher.py Stele/
+          cp desktop/run.py Stele/
+          cp desktop/requirements.txt Stele/
+          
+          # Launcher script
+          cat > Stele/run.sh << 'LAUNCHER'
+          #!/bin/bash
+          DIR="$(cd "$(dirname "$0")" && pwd)"
+          "$DIR/venv/bin/python" "$DIR/launcher.py" "$@"
+          LAUNCHER
+          chmod +x Stele/run.sh
+          
+          # Desktop entry
+          cat > Stele/stele.desktop << 'DESKTOP'
+          [Desktop Entry]
+          Version=1.0
+          Type=Application
+          Name=Stele Desktop
+          Comment=Strumenti per l'epigrafia digitale
+          Exec=bash run.sh
+          Icon=document-edit
+          Categories=Office;
+          DESKTOP
+          
+          # Compatta
+          tar -czf Stele-Linux.tar.gz Stele/
+
+      - name: Upload Linux
+        uses: softprops/action-gh-release@v1
+        with:
+          files: Stele-Linux.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
