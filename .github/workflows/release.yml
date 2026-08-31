@@ -9,6 +9,9 @@ permissions:
   contents: write
 
 jobs:
+  # ============================================================================
+  # macOS: crea Stele.app con PyInstaller
+  # ============================================================================
   build-macos:
     runs-on: macos-latest
     steps:
@@ -19,65 +22,29 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
+      - name: Install PyInstaller and dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install pyinstaller
           pip install -r desktop/requirements.txt
 
-      - name: Create macOS app bundle
+      - name: Build macOS app with PyInstaller
         run: |
-          mkdir -p Stele.app/Contents/MacOS
-          mkdir -p Stele.app/Contents/Resources
+          cd desktop
+          pyinstaller --name "Stele Desktop" \
+            --windowed \
+            --onedir \
+            --add-data "stele_app:stele_app" \
+            --hidden-import stele_app \
+            --hidden-import stele_app.web \
+            --hidden-import stele_app.api \
+            --hidden-import stele_app.db \
+            --osx-bundle-identifier org.erasmdif.stele-desktop \
+            launcher.py
           
-          # Copia venv e codice
-          python -m venv Stele.app/Contents/MacOS/venv
-          source Stele.app/Contents/MacOS/venv/bin/activate
-          pip install -r desktop/requirements.txt
-          
-          # Copia sorgenti
-          cp -r desktop/stele_app Stele.app/Contents/MacOS/
-          cp desktop/launcher.py Stele.app/Contents/MacOS/
-          cp desktop/run.py Stele.app/Contents/MacOS/
-          cp desktop/requirements.txt Stele.app/Contents/MacOS/
-          
-          # Crea launcher script
-          cat > Stele.app/Contents/MacOS/Stele << 'LAUNCHER'
-          #!/bin/bash
-          DIR="$(cd "$(dirname "$0")" && pwd)"
-          "$DIR/venv/bin/python" "$DIR/launcher.py"
-          LAUNCHER
-          chmod +x Stele.app/Contents/MacOS/Stele
-          
-          # Info.plist
-          cat > Stele.app/Contents/Info.plist << 'PLIST'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>CFBundleDevelopmentRegion</key>
-            <string>en</string>
-            <key>CFBundleExecutable</key>
-            <string>Stele</string>
-            <key>CFBundleIdentifier</key>
-            <string>org.erasmdif.stele-desktop</string>
-            <key>CFBundleInfoDictionaryVersion</key>
-            <string>6.0</string>
-            <key>CFBundleName</key>
-            <string>Stele Desktop</string>
-            <key>CFBundlePackageType</key>
-            <string>APPL</string>
-            <key>CFBundleShortVersionString</key>
-            <string>1.0</string>
-            <key>CFBundleVersion</key>
-            <string>1</string>
-            <key>NSHighResolutionCapable</key>
-            <true/>
-          </dict>
-          </plist>
-          PLIST
-          
-          # Zipa
-          zip -qr Stele-macOS.zip Stele.app
+          # Zipa il .app
+          cd dist
+          zip -qr ../../Stele-macOS.zip "Stele Desktop.app"
 
       - name: Upload macOS
         uses: softprops/action-gh-release@v1
@@ -86,6 +53,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # ============================================================================
+  # Windows: crea Stele.exe con PyInstaller
+  # ============================================================================
   build-windows:
     runs-on: windows-latest
     steps:
@@ -96,36 +66,29 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
+      - name: Install PyInstaller and dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install pyinstaller
           pip install -r desktop/requirements.txt
 
-      - name: Create Windows package
+      - name: Build Windows exe with PyInstaller
         shell: pwsh
         run: |
-          # Crea cartella Stele
-          New-Item -ItemType Directory -Path Stele -Force | Out-Null
+          cd desktop
+          pyinstaller --name "Stele Desktop" `
+            --onedir `
+            --console `
+            --add-data "stele_app;stele_app" `
+            --hidden-import stele_app `
+            --hidden-import stele_app.web `
+            --hidden-import stele_app.api `
+            --hidden-import stele_app.db `
+            launcher.py
           
-          # Copia venv e codice
-          python -m venv Stele\venv
-          & .\Stele\venv\Scripts\pip install -r desktop\requirements.txt
-          
-          Copy-Item -Path desktop\stele_app -Destination Stele\ -Recurse
-          Copy-Item -Path desktop\launcher.py -Destination Stele\
-          Copy-Item -Path desktop\run.py -Destination Stele\
-          Copy-Item -Path desktop\requirements.txt -Destination Stele\
-          
-          # Launcher batch file
-          $batchContent = @"
-          @echo off
-          cd /d "%~dp0"
-          venv\Scripts\python.exe launcher.py %*
-          "@
-          $batchContent | Out-File -FilePath "Stele\Stele.bat" -Encoding ASCII
-          
-          # Zipa
-          Compress-Archive -Path Stele -DestinationPath Stele-Windows.zip
+          # Zipa la cartella
+          cd dist
+          Compress-Archive -Path "Stele Desktop" -DestinationPath ..\..\Stele-Windows.zip
 
       - name: Upload Windows
         uses: softprops/action-gh-release@v1
@@ -134,6 +97,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # ============================================================================
+  # Linux: crea binario standalone con PyInstaller
+  # ============================================================================
   build-linux:
     runs-on: ubuntu-latest
     steps:
@@ -144,34 +110,34 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
+      - name: Install PyInstaller and dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install pyinstaller
           pip install -r desktop/requirements.txt
 
-      - name: Create Linux package
+      - name: Build Linux binary with PyInstaller
         run: |
-          set -e
+          cd desktop
+          pyinstaller --name "stele-desktop" \
+            --onedir \
+            --console \
+            --add-data "stele_app:stele_app" \
+            --hidden-import stele_app \
+            --hidden-import stele_app.web \
+            --hidden-import stele_app.api \
+            --hidden-import stele_app.db \
+            launcher.py
           
-          # Crea cartella Stele
-          mkdir -p Stele
+          # Rinomina la cartella e crea uno script di avvio user-friendly
+          cd dist
+          mv stele-desktop Stele
           
-          # Copia venv e codice
-          python -m venv Stele/venv
-          source Stele/venv/bin/activate
-          pip install -r desktop/requirements.txt
-          deactivate
-          
-          cp -r desktop/stele_app Stele/
-          cp desktop/launcher.py Stele/
-          cp desktop/run.py Stele/
-          cp desktop/requirements.txt Stele/
-          
-          # Launcher script
+          # Script di avvio
           cat > Stele/run.sh << 'LAUNCHER'
           #!/bin/bash
           DIR="$(cd "$(dirname "$0")" && pwd)"
-          "$DIR/venv/bin/python" "$DIR/launcher.py" "$@"
+          "$DIR/stele-desktop" "$@"
           LAUNCHER
           chmod +x Stele/run.sh
           
@@ -188,7 +154,7 @@ jobs:
           DESKTOP
           
           # Compatta
-          tar -czf Stele-Linux.tar.gz Stele/
+          tar -czf ../../Stele-Linux.tar.gz Stele/
 
       - name: Upload Linux
         uses: softprops/action-gh-release@v1
