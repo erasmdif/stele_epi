@@ -75,25 +75,25 @@
         <div class="pway-head">
           <span class="pway-badge">2</span>
           <h2>Stele Desktop</h2>
-          <p class="pway-sub">DBMS completo. Gira sul tuo computer, i tuoi dati restano tuoi.</p>
+          <p class="pway-sub">Complete DBMS. Runs on your computer, your data stays yours.</p>
         </div>
         <div class="pway-body">
-          <p>La versione desktop è il vero <strong>strumento di lavoro per un progetto epigrafico</strong>.
-             Un database locale (GeoPackage / SQLite) tiene insieme contesti archeologici, oggetti,
-             versioni testuali parallele, vocabolari controllati con rete semantica, cronologie multiple,
-             luoghi geolocalizzati, bibliografia.</p>
+          <p>The desktop version is the real <strong>working tool for an epigraphic project</strong>.
+             A local database (GeoPackage / SQLite) brings together archaeological contexts, objects,
+             parallel text versions, controlled vocabularies with semantic networks, multiple chronologies,
+             geolocated places, bibliography.</p>
           <ul class="pway-features">
-            <li>Versioni parallele allineate riga↔riga (diplomatica, traslitterazione, traduzione…)</li>
-            <li>Vocabolari controllati con relazioni gerarchiche ereditate</li>
-            <li>Cronologie visuali con datazioni multiple per metodo</li>
-            <li>Contesti e oggetti con campi archeologici + geolocalizzazione</li>
-            <li>Export TEI-XML per interoperabilità</li>
+            <li>Parallel versions aligned line↔line (diplomatic, transliteration, translation…)</li>
+            <li>Controlled vocabularies with inherited hierarchical relations</li>
+            <li>Visual chronologies with multiple datings by method</li>
+            <li>Contexts and objects with archaeological fields + geolocation</li>
+            <li>TEI-XML export for interoperability</li>
           </ul>
         </div>
         <div class="pway-foot">
           <div id="dlBox">
             <a class="btn primary large" id="dlPrimary" href="https://github.com/erasmdif/stele_epi/releases/latest">
-              Scarica per il tuo sistema
+              Download for your system
             </a>
             <div class="dl-alts">
               <a href="https://github.com/erasmdif/stele_epi/releases/latest" data-os="macos">macOS</a> ·
@@ -101,10 +101,27 @@
               <a href="https://github.com/erasmdif/stele_epi/releases/latest" data-os="linux">Linux</a>
             </div>
           </div>
-          <p class="pway-note">
-            Doppio clic sull'icona. Nessuna riga di comando, nessun Python da installare a mano.
-            La prima esecuzione può richiedere qualche minuto (scarica un ambiente Python locale).
-          </p>
+          <div class="install-guide">
+            <p class="guide-title">How to install &amp; run:</p>
+            <div class="guide-steps">
+              <div class="guide-os" data-os="macos">
+                <p><strong>macOS:</strong> Download <code>Stele-macOS.zip</code> → unzip → double-click <code>Stele.app</code></p>
+              </div>
+              <div class="guide-os" data-os="windows">
+                <p><strong>Windows:</strong> Download <code>Stele-Windows.zip</code> → extract → double-click <code>Stele.bat</code></p>
+              </div>
+              <div class="guide-os" data-os="linux">
+                <p><strong>Linux:</strong> Download <code>Stele-Linux.tar.gz</code> → <code>tar -xzf Stele-Linux.tar.gz && cd Stele && ./run.sh</code></p>
+              </div>
+            </div>
+            <p class="guide-note">
+              ✓ No command line needed (except Linux). No Python to install by hand.
+              First run: ~10–20 seconds (local Python environment setup).
+              Your data: <code>~/Library/Application Support/Stele Desktop/</code> (macOS) · 
+              <code>%APPDATA%\Stele Desktop\</code> (Windows) · 
+              <code>~/.local/share/stele-desktop/</code> (Linux).
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -175,7 +192,7 @@
   </footer>
 
   <script>
-    // Rileva l'OS del visitatore e evidenzia il link giusto
+    // Rileva l'OS del visitatore e personalizza il download
     (function () {
       const ua = navigator.userAgent || '';
       const plat = (navigator.platform || '').toLowerCase();
@@ -184,10 +201,16 @@
       else if (/win/i.test(plat) || /Windows/.test(ua)) os = 'windows';
       const map = { macos: 'macOS', windows: 'Windows', linux: 'Linux' };
       const btn = document.getElementById('dlPrimary');
-      if (btn) btn.textContent = 'Scarica per ' + map[os];
-      // evidenzia il link OS-specifico
+      if (btn) btn.textContent = 'Download for ' + map[os];
+      
+      // Evidenzia il link OS-specifico nei dl-alts
       document.querySelectorAll('[data-os]').forEach(a => {
         if (a.dataset.os === os) a.style.fontWeight = '700';
+      });
+      
+      // Mostra solo le istruzioni per questo OS
+      document.querySelectorAll('.guide-os').forEach(div => {
+        div.style.display = (div.dataset.os === os) ? 'block' : 'none';
       });
     })();
   </script>

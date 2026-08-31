@@ -127,9 +127,23 @@ main { max-width: 1120px; margin: 0 auto; padding: 30px 24px 60px; }
 }
 .pway-foot .btn { margin-right: 6px; }
 .pway-note { font-size: 12px; color: var(--ink-soft); margin-top: 10px; }
+#dlBox { margin-bottom: 16px; }
 #dlBox .dl-alts { margin-top: 10px; font-size: 13px; color: var(--ink-soft); }
 #dlBox .dl-alts a { color: var(--accent-ink); text-decoration: none; }
 #dlBox .dl-alts a:hover { text-decoration: underline; }
+
+/* Install guide */
+.install-guide { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.guide-title { font-size: 12px; text-transform: uppercase; letter-spacing: .12em;
+  color: var(--accent-ink); font-weight: 600; margin-bottom: 10px; display: block; }
+.guide-steps { margin-bottom: 12px; }
+.guide-os { font-size: 13px; color: var(--ink); line-height: 1.5; margin-bottom: 8px; }
+.guide-os p { margin: 0; }
+.guide-os code { font-size: .9em; background: var(--stone-2); padding: 2px 6px; border-radius: 3px; }
+.guide-os strong { color: var(--accent-ink); font-weight: 600; }
+.guide-note { font-size: 11px; color: var(--ink-soft); line-height: 1.5; margin: 0;
+  padding-top: 8px; border-top: 1px solid var(--stone-2); }
+.guide-note code { font-size: .85em; background: none; padding: 0; border-radius: 0; color: var(--ink-soft); }
 
 /* --- Compare table --- */
 .compare { margin-top: 50px; padding: 28px 30px; background: var(--paper);
