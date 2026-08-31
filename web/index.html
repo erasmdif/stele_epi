@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stele — annotazione stand-off per testi storici</title>
+  <meta name="description" content="Annota testi storici (Lineare B) con marcatura stand-off tipo TEI, note sovrapponibili e mappatura dei luoghi. Statico, pronto per GitHub Pages.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=Noto+Sans+Linear+B&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="tablet">𐀁</span>
+      <span class="mark">Stele</span>
+      <span class="sub">annotatore stand-off</span>
+    </a>
+    <nav class="topnav"><a href="../" title="Torna alla home del progetto" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:var(--ink-soft);font-size:14px">← Progetto</a>
+      <a href="index.html" class="active">Home</a>
+      <a href="editor.html">Annota</a>
+      <a href="viewer.html">Visualizza</a>
+    </nav>
+    <span class="spacer"></span>
+    <div class="actions">
+      <a class="btn small ghost" href="https://github.com/erasmdif/stele_epi" target="_blank" rel="noopener">Codice</a>
+    </div>
+    <div class="wm" aria-hidden="true">𐀀𐀁𐀂𐀃𐀄
+𐀈𐀉𐀊𐀋</div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="kicker">Marcatura tipo TEI · lingue storiche</p>
+      <h1>Annota il testo, non la sua struttura.</h1>
+      <p class="lede">
+        Stele usa una marcatura <strong>stand-off</strong>: le note fanno riferimento a porzioni
+        di testo tramite offset, non a tag inseriti nel corpo. Così puoi assegnare più note
+        alla stessa porzione e far sovrapporre liberamente le annotazioni — senza rompere nulla.
+      </p>
+
+      <p class="specimen" lang="gmy">𐀒𐀜𐀰&nbsp;&nbsp;𐀞𐀂𐀵&nbsp;&nbsp;𐀀𐀖𐀛𐀰</p>
+
+      <div class="inline-note" style="max-width:640px">
+        Esempio del caso <em>X&nbsp;/&nbsp;Z&nbsp;/&nbsp;XYZ</em>: su <code>𐀒𐀜𐀰</code> (ko-no-so, Cnosso)
+        puoi mettere una nota sul primo segno, una sull'ultimo e una sull'intera parola,
+        tutte insieme e visibili come corsie parallele.
+      </div>
+
+      <div class="cards">
+        <a class="card" href="editor.html">
+          <h3>Annota un testo →</h3>
+          <p>Inserisci o trascina il testo, seleziona una porzione e attribuisci una o più note. Palette Lineare B integrata e mappatura dei luoghi.</p>
+        </a>
+        <a class="card" href="viewer.html">
+          <h3>Visualizza un lavoro →</h3>
+          <p>Apri un documento già prodotto (o riprendi la sessione corrente) in sola lettura, con note e mappa dei luoghi taggati.</p>
+        </a>
+      </div>
+
+      <ul class="featurelist">
+        <li>Note sovrapposte e multiple sulla stessa porzione</li>
+        <li>Categorie con colore: lessico, persona, luogo, cronologia, nota</li>
+        <li>Testo a righe numerate e riferimenti <code>r. / col.</code> automatici</li>
+        <li>Scrittura Lineare B via palette o code point Unicode</li>
+        <li>Luoghi geocodificati (OpenStreetMap / GeoNames) su mappa Leaflet</li>
+        <li>Filtro note, legenda e statistiche del documento</li>
+        <li>Salvataggio locale + download <code>.json</code> e <code>.xml</code> (TEI-like)</li>
+        <li>Tutto client-side: nessun server, ok per GitHub Pages</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Stele è un'app statica (v0.1.1). I documenti restano sul tuo dispositivo (salvataggio locale del browser)
+    e sono esportabili come file scaricabili per l'archiviazione o la pubblicazione.
+  </footer>
+
+  <script src="assets/js/core.js"></script>
+</body>
+</html>

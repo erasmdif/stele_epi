@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block heading %}Dashboard{% endblock %}
+{% block content %}
+<p class="eyebrow">Panoramica del progetto</p>
+<div class="grid cards" style="margin-top:12px">
+  {% set labels = {'object':'Oggetti','context':'Contesti','text_document':'Documenti','text_version':'Versioni','annotation':'Annotazioni','text_term':'Termini (testo)','object_term':'Termini (oggetto)','context_term':'Termini (contesto)','chronology_term':'Cronologie','bibliography':'Bibliografia','media':'Media'} %}
+  {% for key, val in counts.items() %}
+  <div class="card"><div class="k">{{ labels.get(key, key) }}</div><div class="v">{{ val }}</div></div>
+  {% endfor %}
+</div>
+<div class="panel" style="margin-top:18px">
+  <div class="head"><h2>Per iniziare</h2></div>
+  <div class="body muted">
+    Sfoglia gli <a href="{{ url_for('web.objects') }}">Oggetti</a> per vedere composizione,
+    tipologia inferita e relazioni scientifiche, oppure apri i <a href="{{ url_for('web.texts') }}">Testi</a>
+    per l'annotazione stand-off con anteprima TEI. I vocabolari sono gerarchici: la profondità
+    informativa (es. <i>Minerva → Roman deity → Classical pantheon</i>) è calcolata con CTE ricorsive.
+  </div>
+</div>
+{% endblock %}

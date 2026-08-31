@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stele — annotazione stand-off e DBMS epigrafico</title>
+  <meta name="description" content="Stele è un annotatore stand-off tipo TEI per testi storici, con una versione web dimostrativa e un DBMS desktop completo per progetti epigrafici (contesti, oggetti, cronologia, vocabolari controllati).">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=Noto+Sans+Linear+B&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/landing.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./">
+      <span class="tablet">𐀁</span>
+      <span class="mark">Stele</span>
+      <span class="sub">strumenti per l'epigrafia digitale</span>
+    </a>
+    <span class="spacer"></span>
+    <nav class="topnav">
+      <a href="web/">Prova online</a>
+      <a href="#desktop">Stele Desktop</a>
+      <a href="https://github.com/erasmdif/stele_epi" target="_blank" rel="noopener">Codice ↗</a>
+    </nav>
+    <div class="wm" aria-hidden="true">𐀀𐀁𐀂𐀃𐀄
+𐀈𐀉𐀊𐀋</div>
+  </header>
+
+  <main>
+    <!-- HERO ------------------------------------------------------------ -->
+    <section class="hero">
+      <p class="kicker">Marcatura tipo TEI · lingue storiche</p>
+      <h1>Annota il testo, non la sua struttura.</h1>
+      <p class="lede">
+        Stele è un progetto per l'epigrafia digitale che offre due strumenti complementari:
+        un <strong>annotatore stand-off</strong> pronto all'uso nel browser, e uno
+        <strong>strumento desktop</strong> che gestisce interi progetti di ricerca —
+        con vocabolari controllati, contesti archeologici, cronologie multiple e versioni testuali parallele.
+      </p>
+      <p class="specimen" lang="gmy">𐀒𐀜𐀰&nbsp;&nbsp;𐀀𐀂𐀒𐀨𐀩𐀁&nbsp;&nbsp;𐀥𐀟𐀰𐀇𐀛</p>
+      <div class="inline-note">
+        La marcatura è <em>stand-off</em>: le annotazioni fanno riferimento a porzioni di testo tramite offset,
+        non a tag inseriti nel corpo. Puoi assegnare più note alla stessa porzione, farle sovrapporre
+        liberamente, correggere il testo senza rompere nulla.
+      </div>
+    </section>
+
+    <!-- SCELTA DEL PRODOTTO --------------------------------------------- -->
+    <section class="pathways">
+      <div class="pway">
+        <div class="pway-head">
+          <span class="pway-badge">1</span>
+          <h2>Prova online</h2>
+          <p class="pway-sub">Nessuna installazione. Gira nel tuo browser.</p>
+        </div>
+        <div class="pway-body">
+          <p>La versione web è pensata per <strong>capire cosa fa Stele in cinque minuti</strong>.
+             Apri un testo, sottolinealo, aggiungi annotazioni, esporta in TEI-XML.
+             I dati stanno solo nel tuo browser: nulla viene inviato a un server.</p>
+          <ul class="pway-features">
+            <li>Annotazione stand-off con offset in code point</li>
+            <li>Annotazioni sovrapposte e discontinue</li>
+            <li>Supporto Lineare B con palette dei sillabogrammi</li>
+            <li>Import/export TEI-XML e JSON</li>
+          </ul>
+        </div>
+        <div class="pway-foot">
+          <a class="btn primary large" href="web/">Apri l'annotatore →</a>
+          <a class="btn ghost" href="web/viewer.html">Guarda un esempio</a>
+        </div>
+      </div>
+
+      <div class="pway" id="desktop">
+        <div class="pway-head">
+          <span class="pway-badge">2</span>
+          <h2>Stele Desktop</h2>
+          <p class="pway-sub">DBMS completo. Gira sul tuo computer, i tuoi dati restano tuoi.</p>
+        </div>
+        <div class="pway-body">
+          <p>La versione desktop è il vero <strong>strumento di lavoro per un progetto epigrafico</strong>.
+             Un database locale (GeoPackage / SQLite) tiene insieme contesti archeologici, oggetti,
+             versioni testuali parallele, vocabolari controllati con rete semantica, cronologie multiple,
+             luoghi geolocalizzati, bibliografia.</p>
+          <ul class="pway-features">
+            <li>Versioni parallele allineate riga↔riga (diplomatica, traslitterazione, traduzione…)</li>
+            <li>Vocabolari controllati con relazioni gerarchiche ereditate</li>
+            <li>Cronologie visuali con datazioni multiple per metodo</li>
+            <li>Contesti e oggetti con campi archeologici + geolocalizzazione</li>
+            <li>Export TEI-XML per interoperabilità</li>
+          </ul>
+        </div>
+        <div class="pway-foot">
+          <div id="dlBox">
+            <a class="btn primary large" id="dlPrimary" href="https://github.com/erasmdif/stele_epi/releases/latest">
+              Scarica per il tuo sistema
+            </a>
+            <div class="dl-alts">
+              <a href="https://github.com/erasmdif/stele_epi/releases/latest" data-os="macos">macOS</a> ·
+              <a href="https://github.com/erasmdif/stele_epi/releases/latest" data-os="windows">Windows</a> ·
+              <a href="https://github.com/erasmdif/stele_epi/releases/latest" data-os="linux">Linux</a>
+            </div>
+          </div>
+          <p class="pway-note">
+            Doppio clic sull'icona. Nessuna riga di comando, nessun Python da installare a mano.
+            La prima esecuzione può richiedere qualche minuto (scarica un ambiente Python locale).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIFFERENZE ------------------------------------------------------ -->
+    <section class="compare">
+      <h2>Quale scegliere?</h2>
+      <table>
+        <thead>
+          <tr><th></th><th>Versione online</th><th>Stele Desktop</th></tr>
+        </thead>
+        <tbody>
+          <tr><th>A cosa serve</th>
+              <td>Provare, dimostrare, annotare un singolo testo</td>
+              <td>Gestire un intero progetto di ricerca epigrafica</td></tr>
+          <tr><th>Dove stanno i dati</th>
+              <td>Nel tuo browser (localStorage)</td>
+              <td>In un file <code>.gpkg</code> sul tuo disco</td></tr>
+          <tr><th>Multi-testo</th><td>—</td><td>✓ N documenti, N versioni ciascuno</td></tr>
+          <tr><th>Vocabolari controllati</th><td>—</td><td>✓ con rete semantica e gerarchia</td></tr>
+          <tr><th>Contesti archeologici</th><td>—</td><td>✓ con geometria, deposito, tecniche di scavo</td></tr>
+          <tr><th>Oggetti + composizione</th><td>—</td><td>✓ con decorazione, restauri, misure</td></tr>
+          <tr><th>Cronologia visuale</th><td>—</td><td>✓ datazioni multiple per metodo</td></tr>
+          <tr><th>Ricerca full-text</th><td>—</td><td>✓ FTS5 su tutti i testi</td></tr>
+          <tr><th>Installazione</th><td>Nessuna</td><td>Doppio clic (bundle autonomo)</td></tr>
+          <tr><th>Connessione internet</th><td>Solo per aprire la pagina</td><td>Solo per il geocoding dei luoghi</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- FONDAZIONI TECNICHE --------------------------------------------- -->
+    <section class="tech">
+      <h2>Fondazioni tecniche</h2>
+      <div class="tech-grid">
+        <div>
+          <p class="eyebrow">Standard aperti</p>
+          <p>Marcatura conforme alla filosofia <a href="https://tei-c.org" target="_blank" rel="noopener">TEI</a>,
+             offset in code point NFC (funziona con qualsiasi script Unicode: Lineare B, geroglifici, greco, latino, CJK).
+             Database in formato <a href="https://www.geopackage.org/" target="_blank" rel="noopener">GeoPackage OGC</a> — apribile
+             direttamente in <a href="https://qgis.org" target="_blank" rel="noopener">QGIS</a>.</p>
+        </div>
+        <div>
+          <p class="eyebrow">Immutabilità e versioning</p>
+          <p>Le versioni testuali annotate sono immutabili: modificare un testo crea una nuova versione,
+             le annotazioni vengono <em>remappate</em> per prefisso/suffisso comune, quelle che
+             attraversano il punto di modifica restano sulla versione precedente e sono segnalate.</p>
+        </div>
+        <div>
+          <p class="eyebrow">Rete semantica</p>
+          <p>I termini di dizionario (persone, luoghi, divinità, concetti) sono <em>record condivisi</em>:
+             una modifica alla gerarchia di «Ares» si propaga automaticamente a tutte le annotazioni
+             che vi puntano, senza doverle ri-esplicitare.</p>
+        </div>
+        <div>
+          <p class="eyebrow">Local-first</p>
+          <p>Nessun account, nessun server remoto, nessuna sincronizzazione forzata.
+             Il tuo <code>.gpkg</code> è il tuo progetto: lo copi, lo condividi, lo apri con altri strumenti.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="foot-in">
+      <p><strong>Stele</strong> · strumenti per l'epigrafia digitale · <a href="https://github.com/erasmdif/stele_epi" target="_blank" rel="noopener">github.com/erasmdif/stele_epi</a></p>
+      <p class="muted">Software libero. Made for digital humanists.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Rileva l'OS del visitatore e evidenzia il link giusto
+    (function () {
+      const ua = navigator.userAgent || '';
+      const plat = (navigator.platform || '').toLowerCase();
+      let os = 'linux';
+      if (/mac|iphone|ipad/i.test(plat) || /Macintosh/.test(ua)) os = 'macos';
+      else if (/win/i.test(plat) || /Windows/.test(ua)) os = 'windows';
+      const map = { macos: 'macOS', windows: 'Windows', linux: 'Linux' };
+      const btn = document.getElementById('dlPrimary');
+      if (btn) btn.textContent = 'Scarica per ' + map[os];
+      // evidenzia il link OS-specifico
+      document.querySelectorAll('[data-os]').forEach(a => {
+        if (a.dataset.os === os) a.style.fontWeight = '700';
+      });
+    })();
+  </script>
+</body>
+</html>

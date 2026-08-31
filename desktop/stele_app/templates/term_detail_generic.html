@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% set human_names = {'context_term': 'contesto', 'object_term': 'oggetto', 'chronology_term': 'cronologia'} %}
+{% block heading %}{{ t.preferred_label }} — record di {{ human_names[table] }}{% endblock %}
+{% block content %}
+<div class="crumb"><a href="{{ url_for('web.vocabularies') }}">Vocabolari</a> / {{ t.preferred_label }}</div>
+
+<div class="two" style="margin-top:12px">
+  <!-- COLONNA SX: identità -->
+  <div class="panel">
+    <div class="head"><h2>Identità</h2><span class="spacer"></span>
+      <button class="btn mini" id="btnSaveIdentity">Salva</button>
+      <button class="btn mini" id="btnDelete">Elimina</button></div>
+    <div class="body">
+      <p class="eyebrow">Etichetta preferita</p>
+      <input id="fPreferred" value="{{ t.preferred_label }}" style="width:100%;font:inherit;font-size:16px;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">
+
+      {% if table != 'chronology_term' %}
+        <p class="eyebrow" style="margin-top:10px">Tipo</p>
+        <input id="fType" value="{{ t.term_type or '' }}" placeholder="es. site_function, material, decoration_type"
+               style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px">
+        <p class="muted" style="font-size:11px;margin-top:2px">Il tipo raggruppa i termini per funzione (es. tutti i "material" degli oggetti).</p>
+      {% else %}
+        <p class="eyebrow" style="margin-top:10px">Datazione assoluta (numerazione astronomica, 1 BC = 0)</p>
+        <div style="display:flex;gap:8px">
+          <label style="flex:1;font-size:11px;color:var(--ink-soft)">Da (year_from)
+            <input id="fYearFrom" type="number" value="{{ t.year_from if t.year_from is not none else '' }}"
+                   style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px">
+          </label>
+          <label style="flex:1;font-size:11px;color:var(--ink-soft)">A (year_to)
+            <input id="fYearTo" type="number" value="{{ t.year_to if t.year_to is not none else '' }}"
+                   style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px">
+          </label>
+          <label style="flex:1;font-size:11px;color:var(--ink-soft)">Precisione
+            <input id="fPrecision" value="{{ t.precision or '' }}" placeholder="es. century, decade"
+                   style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px">
+          </label>
+        </div>
+      {% endif %}
+
+      <p class="eyebrow" style="margin-top:10px">Descrizione</p>
+      <textarea id="fDescription" style="width:100%;min-height:70px;font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">{{ t.description or '' }}</textarea>
+
+      {% if t.labels is defined and (t.labels or table != 'chronology_term') %}
+      <p class="eyebrow" style="margin-top:14px">Etichette alternative ({{ t.labels|length }})</p>
+      <div id="labels">
+        {% for l in t.labels %}
+          <div class="row-line" data-lid="{{ l.id }}">
+            <span class="mono">{{ l.label }}</span>
+            <span class="tag">{{ l.label_type }}</span>
+            {% if l.language %}<span class="muted">{{ l.language }}</span>{% endif %}
+            <button class="rm" title="Rimuovi">×</button>
+          </div>
+        {% else %}
+          <div class="muted" style="font-size:12px;padding:4px 0">Nessuna etichetta alternativa ancora.</div>
+        {% endfor %}
+      </div>
+      <div class="add-row" style="margin-top:6px">
+        <input id="newLabel" placeholder="nuova etichetta…">
+        <select id="newLabelType">
+          {% for lt in ['alternative','abbreviation','historical','transliteration','preferred','other'] %}<option>{{ lt }}</option>{% endfor %}
+        </select>
+        <input id="newLabelLang" placeholder="lingua" style="width:70px">
+        <button class="btn mini primary" id="btnAddLabel">+</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- COLONNA DX: rete + occorrenze -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="panel"><div class="head"><h2>Rete semantica</h2></div>
+      <div class="body">
+        {% if t.ancestors %}
+        <p class="eyebrow">Gerarchia (inferita)</p>
+        <div style="font-size:13px">{{ t.preferred_label }}
+          {% for a in t.ancestors %}<span class="muted">→</span>
+            <a href="{{ url_for('web.generic_term_page', table=table, term_id=a.id) }}">{{ a.preferred_label }}</a>
+          {% endfor %}</div>
+        {% endif %}
+        <p class="eyebrow" style="margin-top:10px">Relazioni dirette ({{ t.neighbours|length }})</p>
+        <div id="neighbours">
+          {% for n in t.neighbours %}
+          <div class="row-line" data-source="{% if n.dir=='out' %}{{ t.id }}{% else %}{{ n.other_id }}{% endif %}"
+               data-target="{% if n.dir=='out' %}{{ n.other_id }}{% else %}{{ t.id }}{% endif %}"
+               data-rel="{{ n.rel }}">
+            <span class="muted" style="font-size:12px">{{ '↩' if n.dir=='in' else '' }}</span>
+            <span class="tag">{{ n.rel_label }}</span> →
+            <a href="{{ url_for('web.generic_term_page', table=table, term_id=n.other_id) }}">{{ n.other_label }}</a>
+            <button class="rm" title="Rimuovi relazione">×</button>
+          </div>
+          {% else %}
+          <div class="muted" style="font-size:13px">Nessuna relazione. Usa il pulsante qui sotto per costruire la profondità del record.</div>
+          {% endfor %}
+        </div>
+        <div id="addRelBox" style="margin-top:10px">
+          <button class="btn mini primary" id="btnAddRel">+ Collega a un altro termine…</button>
+        </div>
+        {% if t.descendants %}
+        <p class="eyebrow" style="margin-top:12px">Include ({{ t.descendants|length }})</p>
+        <div style="font-size:13px">
+          {% for d in t.descendants %}
+            <a href="{{ url_for('web.generic_term_page', table=table, term_id=d.id) }}">{{ d.preferred_label }}</a>{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div></div>
+
+    <div class="panel"><div class="head"><h2>Occorrenze ({{ t.occurrences|length }})</h2></div>
+      <div class="body" style="padding:0"><table>
+        <thead><tr>
+          <th>{% if table == 'chronology_term' %}Ambito{% else %}Entità{% endif %}</th>
+          <th>Riferimento</th>
+          {% if table == 'chronology_term' %}<th>Metodo</th><th>Datazione assoluta</th>{% endif %}
+        </tr></thead>
+        <tbody>
+        {% for o in t.occurrences %}
+        <tr>
+          <td><span class="tag">{{ o.owner_kind }}</span></td>
+          <td>
+            {% if o.owner_kind == 'context' %}
+              <a href="{{ url_for('web.contexts') }}#{{ o.owner_id }}">{{ o.code or '—' }}</a>{% if o.name %} — <span class="muted">{{ o.name }}</span>{% endif %}
+            {% elif o.owner_kind == 'object' %}
+              <a href="{{ url_for('web.object_detail', obj_id=o.owner_id) }}">{{ o.inventory_number or o.code or '—' }}</a>{% if o.label or o.name %} — <span class="muted">{{ o.label or o.name }}</span>{% endif %}
+            {% endif %}
+          </td>
+          {% if table == 'chronology_term' %}
+            <td>{{ o.dating_method or '—' }}</td>
+            <td class="mono" style="font-size:12px">
+              {% if o.absolute_from is not none or o.absolute_to is not none %}
+                {{ o.absolute_from if o.absolute_from is not none else '?' }} → {{ o.absolute_to if o.absolute_to is not none else '?' }}
+              {% else %}—{% endif %}
+            </td>
+          {% endif %}
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="muted">Nessuna occorrenza — questo record non è ancora usato.</td></tr>
+        {% endfor %}
+        </tbody></table></div></div>
+  </div>
+</div>
+
+<script>
+  window.STELE_VOCAB_TABLE = "{{ table }}";
+  window.STELE_TERM_ID = {{ t.id }};
+</script>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/term_detail_generic.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,3 @@
+Flask>=3.0
+# Opzionale, solo se si usa il backend PostgreSQL/PostGIS:
+# psycopg[binary]>=3.1

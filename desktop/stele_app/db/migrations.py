@@ -1,0 +1,73 @@
+"""
+Migrazioni non-distruttive per progetti esistenti.
+Eseguite al boot di open_project() se il progetto è più vecchio dello schema.
+Aggiungono colonne/tabelle mancanti; non alterano i dati.
+"""
+from .project import now_iso
+
+
+def _has_table(conn, name):
+    return bool(conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)).fetchone())
+
+
+def _has_column(conn, table, col):
+    return any(r["name"] == col for r in conn.execute(f"PRAGMA table_info({table})"))
+
+
+def _add_column_if_missing(conn, table, coldef):
+    """coldef è tipo 'nome TIPO [DEFAULT ...] [CHECK(...)]'."""
+    colname = coldef.split()[0]
+    if _has_column(conn, table, colname):
+        return False
+    conn.execute(f"ALTER TABLE {table} ADD COLUMN {coldef}")
+    return True
+
+
+def apply_migrations(conn):
+    """Applica in sequenza tutte le migrazioni idempotenti. Ritorna una lista
+    delle modifiche effettuate (utile per log/diagnostica)."""
+    changed = []
+
+    # --- text_unit_alignment (versioni parallele allineate) -----------------
+    if not _has_table(conn, "text_unit_alignment"):
+        conn.execute("""
+          CREATE TABLE text_unit_alignment (
+            id INTEGER PRIMARY KEY,
+            group_id INTEGER NOT NULL,
+            text_unit_id INTEGER NOT NULL REFERENCES text_unit(id) ON DELETE CASCADE,
+            role TEXT NOT NULL DEFAULT 'parallel' CHECK (role IN ('primary','parallel','note')),
+            created_at TEXT NOT NULL,
+            UNIQUE (group_id, text_unit_id)
+          ) STRICT;""")
+        conn.execute("CREATE INDEX idx_alignment_group ON text_unit_alignment(group_id)")
+        conn.execute("CREATE INDEX idx_alignment_unit ON text_unit_alignment(text_unit_id)")
+        changed.append("+text_unit_alignment")
+
+    # --- iterazione 2: nuove colonne archeologiche su context / object ------
+    # SQLite ALTER TABLE ADD COLUMN non supporta i CHECK expression complessi
+    # in tutti i casi, ma un CHECK "semplice" (IN list) è supportato.
+    for coldef in [
+        "deposit_type TEXT CHECK (deposit_type IN "
+        "('fill','floor','burial','cut','structure','midden','abandonment','surface','other') "
+        "OR deposit_type IS NULL)",
+        "excavation_technique TEXT CHECK (excavation_technique IN "
+        "('stratigraphic','arbitrary','mixed','surface','test_pit','other') "
+        "OR excavation_technique IS NULL)",
+        "excavation_method_note TEXT",
+        "preservation_note TEXT",
+    ]:
+        if _add_column_if_missing(conn, "context", coldef):
+            changed.append(f"context.+{coldef.split()[0]}")
+
+    for coldef in [
+        "decoration_present INTEGER CHECK (decoration_present IN (0,1) OR decoration_present IS NULL)",
+        "decoration_note TEXT",
+        "restored INTEGER CHECK (restored IN (0,1) OR restored IS NULL)",
+        "restoration_date TEXT",
+        "restoration_note TEXT",
+    ]:
+        if _add_column_if_missing(conn, "object", coldef):
+            changed.append(f"object.+{coldef.split()[0]}")
+
+    conn.commit()
+    return changed

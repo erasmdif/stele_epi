@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Annota — Stele</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=Noto+Sans+Linear+B&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="tablet">𐀁</span>
+      <span class="mark">Stele</span>
+      <span class="sub">annota</span>
+    </a>
+    <nav class="topnav"><a href="../" title="Torna alla home del progetto" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:var(--ink-soft);font-size:14px">← Progetto</a>
+      <a href="index.html">Home</a>
+      <a href="editor.html" class="active">Annota</a>
+      <a href="viewer.html">Visualizza</a>
+    </nav>
+    <span class="spacer"></span>
+    <div class="actions">
+      <button class="btn small" id="btnSettings">⚙ Impostazioni</button>
+      <button class="btn small" id="btnNew">▢ Nuovo</button>
+      <label class="btn small" for="fileOpen">📂 Apri…</label>
+      <input type="file" id="fileOpen" accept=".json,.xml,application/json,text/xml" hidden>
+      <button class="btn small" id="btnSaveJson">💾 Salva .json</button>
+      <button class="btn small" id="btnExportTei">&lt;/&gt; Esporta TEI .xml</button>
+      <a class="btn small primary" href="viewer.html?from=session" id="btnView">Visualizza →</a>
+    </div>
+    <div class="wm" aria-hidden="true">𐀀𐀁𐀂𐀃𐀄
+𐀈𐀉𐀊𐀋</div>
+  </header>
+
+  <main class="wrap">
+    <div class="meta">
+      <label class="field">Titolo
+        <input type="text" id="mTitle" placeholder="Es. Tavoletta KN Fk 1">
+      </label>
+      <label class="field">Autore / curatore
+        <input type="text" id="mAuthor" placeholder="Nome cognome">
+      </label>
+      <label class="field">Scrittura / lingua
+        <select id="mScript"></select>
+      </label>
+    </div>
+
+    <div class="editor-grid">
+      <!-- SINISTRA: testo -->
+      <section class="panel">
+        <div class="panel-head"><h2>▤ Testo</h2></div>
+        <div class="panel-body">
+          <div class="palette" id="palette">
+            <div class="panel-head" style="padding:0 0 8px;border:none"><strong>🧩 Tavolozza Linear B</strong></div>
+            <div class="tabs" id="paletteTabs">
+              <button data-ptab="syll" class="active">Sillabario</button>
+              <button data-ptab="ideo">Ideogrammi</button>
+            </div>
+            <input type="text" class="search" id="glyphSearch" placeholder="Cerca segno…">
+            <div class="glyph-grid" id="glyphGrid"></div>
+            <div class="cp-insert">
+              <span class="hint">Inserisci per codice:</span>
+              <input type="text" id="cpInput" placeholder="U+10080">
+              <button class="btn small" id="cpInsert">Inserisci</button>
+            </div>
+          </div>
+
+          <div class="code-wrap">
+            <div class="code-gutter"><div class="gnums" id="gnums"></div></div>
+            <textarea id="source" spellcheck="false" placeholder="Scrivi o incolla qui il testo. Ogni riga è numerata. Usa la tavolozza per i segni Lineare B."></textarea>
+          </div>
+
+          <div class="addbtns">
+            <button class="btn addbtn" id="btnAddNote">⊕ Nota da selezione</button>
+            <button class="btn addbtn primary" id="btnAddPlace">◎ Luogo da selezione</button>
+          </div>
+          <p class="hint" style="margin:10px 0 0">ℹ Puoi creare più annotazioni sulla stessa selezione. Le selezioni possono sovrapporsi.</p>
+          <div id="orphanBar"></div>
+        </div>
+      </section>
+
+      <!-- DESTRA: anteprima, note, mappa, TEI -->
+      <div class="rightcol">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Anteprima annotata</h2><span class="spacer"></span>
+            <button class="btn small" id="btnLegend">☰ Legenda annotazioni</button>
+          </div>
+          <div class="panel-body">
+            <div class="reader" id="reader"></div>
+            <div class="statbar" id="statbar"></div>
+          </div>
+        </section>
+
+        <div class="subgrid">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Note</h2><span class="spacer"></span>
+              <button class="btn small" id="btnFilter">▾ Filtra</button>
+              <button class="btn small primary" id="btnNewNote">+ Nuova nota</button>
+            </div>
+            <div class="panel-body"><div class="ann-list" id="annList"></div></div>
+          </section>
+
+          <section class="panel map-compact">
+            <div class="panel-head"><h2>Mappa</h2><span class="spacer"></span><span class="hint">luoghi geocodificati</span></div>
+            <div class="panel-body">
+              <div id="map"></div>
+              <div class="map-empty" id="mapEmpty">Nessun luogo con coordinate. Usa «Luogo da selezione».</div>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-head"><h2>TEI / XML</h2><span class="spacer"></span><span class="hint">anteprima export</span>
+            <button class="btn small" id="btnCopyXml">Copia XML</button></div>
+          <div class="panel-body"><pre class="xml" id="xmlOut"></pre></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="statusbar">
+    <strong>Stele</strong><span class="sep">·</span><span>v0.1.1 (alpha)</span>
+    <span class="sep">·</span><span>Stand-off annotation · nessun database, solo file</span>
+    <span class="spacer"></span>
+    <span id="stFile"></span>
+    <span class="dot" id="stDot"></span><span id="stState">Nuovo documento</span>
+  </footer>
+
+  <!-- Modale geocoding -->
+  <div class="modal-back" id="geoModal">
+    <div class="modal">
+      <div class="m-head"><h3>Geolocalizza il luogo</h3><span class="spacer"></span><button class="btn ghost" id="geoClose">✕</button></div>
+      <div class="m-body">
+        <p class="hint" style="margin-top:0">Porzione selezionata: <b id="geoQuote"></b></p>
+        <div class="field-row">
+          <label class="field">Testo da cercare
+            <input type="text" id="geoQuery" placeholder="Es. Cnosso, Creta">
+          </label>
+          <label class="field">Provider
+            <select id="geoProvider">
+              <option value="nominatim">OpenStreetMap / Nominatim (senza chiave)</option>
+              <option value="geonames">GeoNames (richiede username)</option>
+              <option value="manual">Coordinate manuali</option>
+            </select>
+          </label>
+          <div id="manualCoords" style="display:none">
+            <div class="field-row" style="flex-direction:row;gap:10px">
+              <label class="field" style="flex:1">Lat <input type="text" id="geoLat" placeholder="35.2980"></label>
+              <label class="field" style="flex:1">Lon <input type="text" id="geoLon" placeholder="25.1630"></label>
+            </div>
+            <label class="field">Nome del luogo <input type="text" id="geoName" placeholder="Cnosso"></label>
+          </div>
+        </div>
+        <button class="btn" id="geoSearchBtn" style="margin-top:10px">Cerca</button>
+        <div class="geo-results" id="geoResults"></div>
+      </div>
+      <div class="m-foot">
+        <button class="btn ghost" id="geoCancel">Annulla</button>
+        <button class="btn primary" id="geoConfirm" disabled>Assegna coordinate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale impostazioni -->
+  <div class="modal-back" id="settingsModal">
+    <div class="modal">
+      <div class="m-head"><h3>Impostazioni</h3><span class="spacer"></span><button class="btn ghost" id="setClose">✕</button></div>
+      <div class="m-body">
+        <label class="field">Username GeoNames
+          <input type="text" id="geonamesUser" placeholder="il-tuo-username">
+        </label>
+        <p class="hint">Registrazione gratuita su geonames.org (abilita i web service nel profilo). Nominatim non richiede registrazione.</p>
+      </div>
+      <div class="m-foot"><button class="btn primary" id="setSave">Salva</button></div>
+    </div>
+  </div>
+
+  <div class="toast-host" id="toastHost"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="assets/js/core.js"></script>
+  <script src="assets/js/linearb.js"></script>
+  <script src="assets/js/editor.js"></script>
+</body>
+</html>

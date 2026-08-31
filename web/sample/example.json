@@ -1,0 +1,135 @@
+{
+  "schema": "1.0",
+  "meta": {
+    "title": "Esempio: toponimi e categorie",
+    "author": "Stele",
+    "script": "linear-b",
+    "description": "Documento dimostrativo: toponimi micenei geolocalizzati, annotazioni per categoria (lessico, persona, luogo, cronologia, nota) e sovrapposizioni sulla stessa porzione. Le letture di r. 5–7 sono puramente illustrative.",
+    "created": "2026-08-29T09:21:10.747Z",
+    "modified": "2026-08-29T09:21:10.747Z"
+  },
+  "text": "𐀒𐀜𐀰   𐀞𐀂𐀵   𐀀𐀖𐀛𐀰\nko-no-so   pa-i-to   a-mi-ni-so\nCnosso, Festo, Amniso — tre centri dell’isola.\n\n𐀁𐀩𐀯𐀋   3   𐀥𐀩\ne-re-si-ja   3   qe-re\nEresija; 3 (unità); (parola incerta).",
+  "annotations": [
+    {
+      "id": "amte67wikjiq73",
+      "start": 27,
+      "end": 35,
+      "type": "place",
+      "category": "luogo",
+      "note": "Centro palaziale principale; sede dell’archivio in Lineare B.",
+      "tags": [
+        "toponimo"
+      ],
+      "color": "#2a6f9a",
+      "place": {
+        "name": "Cnosso (Knossos)",
+        "lat": 35.298,
+        "lon": 25.163,
+        "source": "manual",
+        "detail": "sito archeologico"
+      }
+    },
+    {
+      "id": "amte67wiknjr2x",
+      "start": 38,
+      "end": 45,
+      "type": "place",
+      "category": "luogo",
+      "note": "Secondo centro dell’isola, sulla piana della Messarà.",
+      "tags": [
+        "toponimo"
+      ],
+      "color": "#2a6f9a",
+      "place": {
+        "name": "Festo (Phaistos)",
+        "lat": 35.0517,
+        "lon": 24.8144,
+        "source": "manual",
+        "detail": "sito archeologico"
+      }
+    },
+    {
+      "id": "amte67wikhzs4q",
+      "start": 48,
+      "end": 58,
+      "type": "place",
+      "category": "luogo",
+      "note": "Porto di Cnosso.",
+      "tags": [
+        "toponimo",
+        "porto"
+      ],
+      "color": "#2a6f9a",
+      "place": {
+        "name": "Amniso (Amnisos)",
+        "lat": 35.3339,
+        "lon": 25.1897,
+        "source": "manual",
+        "detail": "porto"
+      }
+    },
+    {
+      "id": "amte67wikmn0hf",
+      "start": 27,
+      "end": 29,
+      "type": "note",
+      "category": "lessico",
+      "note": "Sillabogramma ko (*70).",
+      "tags": [
+        "segno"
+      ],
+      "color": "#2f7d5b",
+      "place": null
+    },
+    {
+      "id": "amte67wikuuyci",
+      "start": 33,
+      "end": 35,
+      "type": "note",
+      "category": "lessico",
+      "note": "Sillabogramma so (*12).",
+      "tags": [
+        "segno"
+      ],
+      "color": "#2f7d5b",
+      "place": null
+    },
+    {
+      "id": "amte67wikh03g4",
+      "start": 127,
+      "end": 137,
+      "type": "note",
+      "category": "persona",
+      "note": "Antroponimo (lettura illustrativa).",
+      "tags": [
+        "nome"
+      ],
+      "color": "#7a4fb0",
+      "place": null
+    },
+    {
+      "id": "amte67wikyxhyl",
+      "start": 118,
+      "end": 119,
+      "type": "note",
+      "category": "cronologia",
+      "note": "Quantità numerica: 3 unità.",
+      "tags": [
+        "numero"
+      ],
+      "color": "#c07b1f",
+      "place": null
+    },
+    {
+      "id": "amte67wiko49k7",
+      "start": 59,
+      "end": 80,
+      "type": "note",
+      "category": "nota",
+      "note": "Sintesi in traduzione dei tre toponimi della prima riga.",
+      "tags": [],
+      "color": "#6b6559",
+      "place": null
+    }
+  ]
+}

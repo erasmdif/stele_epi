@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block heading %}Vocabolari{% endblock %}
+{% block content %}
+<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+  {% for table, v in vocabs.items() %}
+  <div class="panel"><div class="head"><h2>{{ v.human }}</h2><span class="muted">{{ v.terms|length }}</span></div>
+  <div class="body" style="max-height:360px;overflow:auto">
+    {% for t in v.terms %}
+      <div class="term-line" data-table="{{ table }}" data-id="{{ t.id }}"
+           style="padding:4px 0;cursor:pointer;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:6px">
+        {% if table == 'text_term' %}
+          <a href="{{ url_for('web.term_page', term_id=t.id) }}" style="color:inherit;text-decoration:none">{{ t.preferred_label }}</a>
+        {% elif table in ('context_term','object_term','chronology_term') %}
+          <a href="{{ url_for('web.generic_term_page', table=table, term_id=t.id) }}" style="color:inherit;text-decoration:none">{{ t.preferred_label }}</a>
+        {% else %}
+          {{ t.preferred_label }}
+        {% endif %}
+        {% if t.term_type %}<span class="tag">{{ t.term_type }}</span>{% endif %}
+        <span class="spacer" style="flex:1"></span>
+        <span class="lineage muted" style="font-size:12px"></span>
+      </div>
+    {% endfor %}
+  </div></div>
+  {% endfor %}
+</div>
+<p class="muted" style="margin-top:10px">Clicca un termine per vedere la sua gerarchia (antenati) calcolata via CTE ricorsiva.</p>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('.term-line').forEach(el=>el.addEventListener('click',async()=>{
+  const t=el.dataset.table,id=el.dataset.id,box=el.querySelector('.lineage');
+  if(box.textContent){box.textContent='';return;}
+  const r=await fetch(`/api/vocab/${t}/${id}/lineage`);const d=await r.json();
+  const anc=(d.ancestors||[]).map(a=>'→ '+a.preferred_label).join(' ');
+  box.textContent=anc?('  '+anc):'  (nessun antenato)';
+}));
+</script>
+{% endblock %}

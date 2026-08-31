@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block heading %}Oggetti{% endblock %}
+{% block content %}
+<div class="panel">
+  <div class="head"><h2>Oggetti</h2><span class="muted">{{ objects|length }} record</span></div>
+  <div class="body" style="padding:0">
+    <table>
+      <thead><tr><th>Etichetta</th><th>Inventario</th><th>Tipo record</th><th>Compl.</th><th>Testi</th></tr></thead>
+      <tbody>
+      {% for o in objects %}
+        <tr onclick="location.href='{{ url_for('web.object_detail', obj_id=o.id) }}'" style="cursor:pointer">
+          <td><b>{{ o.label or '—' }}</b></td>
+          <td class="mono">{{ o.inventory_number or '—' }}</td>
+          <td><span class="tag">{{ o.record_kind }}</span></td>
+          <td>{% if o.completeness_percentage is not none %}{{ o.completeness_percentage|int }}%{% else %}—{% endif %}</td>
+          <td>{{ o.n_texts }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

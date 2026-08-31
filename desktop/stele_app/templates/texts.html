@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block heading %}Testi{% endblock %}
+{% block content %}
+<div class="panel"><div class="head"><h2>Documenti di testo</h2><span class="muted">{{ docs|length }}</span></div>
+<div class="body" style="padding:0"><table>
+  <thead><tr><th>Sigla</th><th>Titolo</th><th>Oggetto</th><th>Lingua</th><th>Versioni</th><th></th></tr></thead>
+  <tbody>
+  {% for d in docs %}
+    <tr><td class="mono">{{ d.siglum or '—' }}</td><td>{{ d.title or '—' }}</td>
+    <td>{{ d.object_label or '—' }}</td><td>{{ d.main_language or '—' }}</td><td>{{ d.n_versions }}</td>
+    <td><a class="btn" href="{{ url_for('web.annotate', doc_id=d.id) }}">Annota →</a></td></tr>
+  {% endfor %}
+  </tbody></table></div></div>
+{% endblock %}

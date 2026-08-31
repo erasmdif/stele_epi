@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block heading %}Contesti{% endblock %}
+{% block content %}
+<div class="panel"><div class="head"><h2>Contesti</h2><span class="muted">{{ contexts|length }}</span></div><div class="body" style="padding:0"><table>
+<thead><tr><th>Codice</th><th>Nome</th><th>Tipo deposito</th><th>Tecnica scavo</th><th>Note</th></tr></thead><tbody>
+{% for c in contexts %}<tr>
+  <td><a class="mono" href="{{ url_for('web.context_detail', ctx_id=c.id) }}">{{ c.code or ('#' ~ c.id) }}</a></td>
+  <td>{{ c.name or '' }}</td>
+  <td>{% if c.deposit_type %}<span class="tag">{{ c.deposit_type }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+  <td>{% if c.excavation_technique %}<span class="tag">{{ c.excavation_technique }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+  <td class="muted">{{ c.description or '' }}</td>
+</tr>{% endfor %}
+</tbody></table></div></div>
+{% endblock %}
