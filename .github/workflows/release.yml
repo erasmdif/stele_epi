@@ -117,11 +117,12 @@ jobs:
           Copy-Item -Path desktop\requirements.txt -Destination Stele\
           
           # Launcher batch file
-          @"
+          $batchContent = @"
           @echo off
           cd /d "%~dp0"
           venv\Scripts\python.exe launcher.py %*
-          "@" | Out-File -FilePath "Stele\Stele.bat" -Encoding ASCII
+          "@
+          $batchContent | Out-File -FilePath "Stele\Stele.bat" -Encoding ASCII
           
           # Zipa
           Compress-Archive -Path Stele -DestinationPath Stele-Windows.zip
