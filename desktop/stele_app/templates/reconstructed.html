@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block heading %}Reconstructed text · {{ obj.label }}{% endblock %}
+{% block content %}
+<style>
+  .recon-hero { padding:16px 20px; background:#eef4f4; border:1px solid #b8d0d0;
+                border-radius:6px; margin-bottom:20px; }
+  .recon-hero h3 { margin:0 0 6px; color:#1f545c; }
+  .recon-hero .meta { font-size:13px; color:#55503f; }
+  .frag-strip { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .frag-chip { padding:4px 10px; background:#fff; border:1px solid #b8d0d0; border-radius:14px;
+               font-size:12px; color:#1f545c; }
+  .frag-chip strong { color:#22201b; }
+  .version-tabs { display:flex; gap:2px; border-bottom:2px solid #d7d1c2; margin-bottom:14px; }
+  .vtab { font-size:13px; padding:8px 14px; background:none; border:none;
+          border-bottom:2px solid transparent; cursor:pointer; color:#55503f;
+          margin-bottom:-2px; }
+  .vtab:hover { background:#e6e2d7; }
+  .vtab.active { color:#1f545c; border-bottom-color:#2a6f7a; font-weight:600; }
+  .version-panel { display:none; }
+  .version-panel.active { display:block; }
+  .recon-body { padding:18px 22px; background:#faf8f2; border:1px solid #d7d1c2;
+                border-radius:6px; font-family:'Spectral',Georgia,serif;
+                font-size:16px; line-height:1.9; white-space:pre-wrap; }
+  .recon-line { position:relative; padding:2px 0 2px 90px; margin:0; }
+  .recon-line .frag-src { position:absolute; left:0; top:5px; font-size:11px;
+                          color:#b0a690; font-family:monospace; letter-spacing:.05em;
+                          width:80px; text-align:right; text-transform:uppercase; }
+  .frag-boundary { border-top:1px dashed #d7d1c2; margin:8px 0; padding-top:8px; }
+</style>
+
+<div class="recon-hero">
+  <h3>◆ {{ obj.label }}</h3>
+  <p class="meta">{{ obj.description or '' }}</p>
+  {% if recon %}
+    <div class="frag-strip">
+      {% for f in recon.fragments %}
+        <span class="frag-chip">
+          <strong>#{{ f.fragment.sequence or '?' }}</strong>
+          {{ f.fragment.label }}
+          {% if f.documents %}
+            · {{ f.documents|length }} text(s)
+          {% else %}
+            · <em>uninscribed</em>
+          {% endif %}
+        </span>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+{% if not recon or not recon.combined %}
+  <p class="muted">This object has no inscribed fragments.</p>
+{% else %}
+  <div class="panel">
+    <div class="head">
+      <h2>Complete reconstructed text</h2>
+      <span class="muted">Automatically assembled in sequence order</span>
+    </div>
+    <div class="body">
+      <div class="version-tabs">
+        {% for vtype in recon.version_types %}
+          {% if vtype in recon.combined %}
+            <button class="vtab {% if loop.first %}active{% endif %}"
+                    data-target="v-{{ loop.index }}">{{ vtype }}</button>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% for vtype in recon.version_types %}
+        {% if vtype in recon.combined %}
+          <div class="version-panel {% if loop.first %}active{% endif %}" id="v-{{ loop.index }}">
+            <div class="recon-body">{% for p in recon.combined[vtype].parts %}<div class="frag-boundary" {% if loop.first %}style="border:none;padding-top:0;margin-top:0"{% endif %}></div>{% for line in p.content.split('\n') %}<div class="recon-line"><span class="frag-src">{{ p.fragment_label }}</span>{{ line }}</div>{% endfor %}{% endfor %}</div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <div class="head"><h2>Independent editing by fragment</h2></div>
+    <div class="body" style="padding:0">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Fragment</th><th>Documents</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for f in recon.fragments %}
+          <tr>
+            <td>{{ f.fragment.sequence or '—' }}</td>
+            <td><strong>{{ f.fragment.label }}</strong>
+                <br><span class="muted">{{ f.fragment.description or '' }}</span></td>
+            <td>
+              {% for d in f.documents %}
+                <div style="margin:2px 0">
+                  <span class="mono">{{ d.siglum or ('doc-' ~ d.id) }}</span>
+                  — {{ d.versions|length }} versions
+                </div>
+              {% else %}
+                <span class="muted">uninscribed</span>
+              {% endfor %}
+            </td>
+            <td>
+              {% for d in f.documents %}
+                <a class="btn" href="{{ url_for('web.annotate', doc_id=d.id) }}"
+                   style="margin:2px">Annotate →</a>
+              {% endfor %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endif %}
+
+<p style="margin-top:16px">
+  <a class="btn" href="{{ url_for('web.texts') }}">← Back to texts</a>
+</p>
+
+<script>
+document.querySelectorAll('.vtab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.vtab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.version-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.target).classList.add('active');
+  });
+});
+</script>
+{% endblock %}

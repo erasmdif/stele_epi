@@ -1,20 +1,66 @@
 {% extends "base.html" %}
 {% block heading %}Dashboard{% endblock %}
 {% block content %}
-<p class="eyebrow">Panoramica del progetto</p>
+<p class="eyebrow">Project overview</p>
 <div class="grid cards" style="margin-top:12px">
-  {% set labels = {'object':'Oggetti','context':'Contesti','text_document':'Documenti','text_version':'Versioni','annotation':'Annotazioni','text_term':'Termini (testo)','object_term':'Termini (oggetto)','context_term':'Termini (contesto)','chronology_term':'Cronologie','bibliography':'Bibliografia','media':'Media'} %}
+  {% set labels = {'object':'Objects','context':'Contexts','text_document':'Documents','text_version':'Versions','annotation':'Annotations','text_term':'Text terms','object_term':'Object terms','context_term':'Context terms','chronology_term':'Chronologies','bibliography':'Bibliography','media':'Media'} %}
   {% for key, val in counts.items() %}
   <div class="card"><div class="k">{{ labels.get(key, key) }}</div><div class="v">{{ val }}</div></div>
   {% endfor %}
 </div>
 <div class="panel" style="margin-top:18px">
-  <div class="head"><h2>Per iniziare</h2></div>
+  <div class="head"><h2>Getting started</h2></div>
   <div class="body muted">
-    Sfoglia gli <a href="{{ url_for('web.objects') }}">Oggetti</a> per vedere composizione,
-    tipologia inferita e relazioni scientifiche, oppure apri i <a href="{{ url_for('web.texts') }}">Testi</a>
-    per l'annotazione stand-off con anteprima TEI. I vocabolari sono gerarchici: la profondità
-    informativa (es. <i>Minerva → Roman deity → Classical pantheon</i>) è calcolata con CTE ricorsive.
+    Browse <a href="{{ url_for('web.objects') }}">Objects</a> to inspect composition,
+    inferred types and scholarly relationships, or open <a href="{{ url_for('web.texts') }}">Texts</a>
+    for stand-off annotation with a TEI preview. Vocabularies are hierarchical: semantic depth
+    (for example, <i>Minerva → Roman deity → Classical pantheon</i>) is calculated with recursive CTEs.
   </div>
 </div>
+
+{% if has_sample_data %}
+<div class="panel" style="margin-top:18px;border-color:#c88b78">
+  <div class="head"><h2>Sample dataset</h2><span class="spacer"></span>
+    <button class="btn mini" id="removeSampleData" style="border-color:#a7472d;color:#8c2f1d">
+      Delete all sample data
+    </button>
+  </div>
+  <div class="body muted">
+    <p style="margin-top:0"><strong style="color:#8c2f1d">These records are not real research data.</strong>
+      They are realistic-looking, fictional mock-ups generated with AI solely for demonstration.
+      Names, objects, contexts, inscriptions, relationships, dates, provenances and references may
+      resemble genuine material, but must not be cited or interpreted as scholarly evidence.</p>
+    <p style="margin-bottom:0">Removing the sample corpus creates a clean project while preserving
+      the database structure and controlled vocabularies. A complete GeoPackage backup is created
+      automatically before anything is removed.</p>
+  </div>
+</div>
+<script>
+document.getElementById('removeSampleData').addEventListener('click', async () => {
+  const phrase = prompt(
+    'This will remove every sample context, object, text, annotation and work. ' +
+    'A backup will be created automatically.\n\nType REMOVE SAMPLE DATA to continue:'
+  );
+  if (phrase !== 'REMOVE SAMPLE DATA') return;
+  const button = document.getElementById('removeSampleData');
+  button.disabled = true;
+  button.textContent = 'Removing sample data…';
+  try {
+    const response = await fetch('/api/project/remove-sample-data', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({confirmation: phrase})
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'The sample dataset could not be removed.');
+    alert('Sample data removed. Backup created at:\n' + result.backup_path);
+    window.location.reload();
+  } catch (error) {
+    alert(error.message);
+    button.disabled = false;
+    button.textContent = 'Delete all sample data';
+  }
+});
+</script>
+{% endif %}
 {% endblock %}

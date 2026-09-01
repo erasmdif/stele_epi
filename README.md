@@ -1,80 +1,56 @@
-# Stele — strumenti per l'epigrafia digitale
+# Stele — tools for digital epigraphy
 
-**Stele** è un progetto che offre due strumenti complementari per l'annotazione di testi storici:
+**Stele** provides two complementary tools for annotating historical texts:
 
-- 🌐 **[Prova online](https://erasmdif.github.io/stele_epi/web/)** — un annotatore stand-off che gira nel browser, per capire cosa fa Stele in cinque minuti;
-- 💻 **[Stele Desktop](https://github.com/erasmdif/stele_epi/releases/latest)** — un DBMS completo per progetti epigrafici, che gestisce contesti archeologici, oggetti, versioni testuali parallele, vocabolari controllati con rete semantica, cronologie multiple.
+- 🌐 **[Try it online](https://erasmdif.github.io/stele_epi/web/)** — a browser-based stand-off annotator for exploring Stele without installing anything.
+- 💻 **[Stele Desktop](https://github.com/erasmdif/stele_epi/releases/latest)** — a local-first epigraphic DBMS for archaeological contexts, objects, text witnesses, controlled vocabularies, relations, chronology, and analysis.
 
-I dati sono sempre e solo tuoi: la versione web lavora nel `localStorage` del browser, la versione desktop in un file `.gpkg` sul tuo disco.
+Your data remains under your control. The web edition stores its working session in browser `localStorage`; the desktop edition stores the project in a local `.gpkg` file.
 
----
+## Repository layout
 
-## Struttura del repo
-
-```
+```text
 stele_epi/
-├── index.html         ← landing page (GitHub Pages la serve qui)
-├── assets/            ← css/js/img condivisi con la landing
-├── web/               ← versione online (statica, JS puro)
-│   ├── index.html
-│   ├── editor.html    ← annotatore stand-off
-│   ├── viewer.html    ← lettore TEI
-│   └── assets/
-├── desktop/           ← Stele Desktop (Flask + SQLite/GeoPackage)
-│   ├── stele_app/     ← codice applicativo (models, api, web, static, templates)
-│   ├── tests/         ← test suite (163 test)
-│   ├── launcher.py    ← launcher unico cross-platform
-│   ├── run.py         ← modo "avanzato" per sviluppatori
-│   └── requirements.txt
-├── .github/workflows/ ← CI, GitHub Pages, release automatiche
-└── README.md          ← questo file
+├── index.html          GitHub Pages landing page
+├── assets/             Landing-page assets
+├── web/                Static browser edition
+├── desktop/            Flask + SQLite/GeoPackage desktop edition
+├── .github/workflows/  CI, Pages, and release automation
+└── README.md
 ```
 
-## Cosa fa cosa
+## Web edition
 
-### Versione web (`web/`)
+The web edition is a dependency-free, stand-off text annotator written in vanilla JavaScript. It supports overlapping annotations, Linear B input, place annotations and maps, JSON round trips, and TEI-like XML import/export. GitHub Pages publishes it automatically from `main`.
 
-Un annotatore stand-off tipo TEI in JavaScript puro. Serve per:
-- capire il concetto stand-off senza installare niente;
-- annotare un singolo testo, esportarlo in TEI-XML;
-- dimostrare Stele a chi lo vede per la prima volta.
+## Desktop edition
 
-Pubblicata automaticamente su **GitHub Pages** a ogni push su `main`.
+Stele Desktop supports:
 
-### Stele Desktop (`desktop/`)
+- line-aligned parallel text versions and immutable version history;
+- controlled vocabularies and semantic relations;
+- archaeological contexts, objects, fragments, works, and witnesses;
+- multiple chronologies, FTS5 search, TEI export, and analytics;
+- a local GeoPackage that can also be opened in QGIS.
 
-Un DBMS completo per progetti epigrafici, con:
-- versioni testuali parallele (`diplomatic_transcription`, `transliteration`, `translation`, …) **allineate riga↔riga**;
-- vocabolari controllati (persone, luoghi, divinità, tipi archeologici, cronologie) con **rete semantica** ereditata via CTE ricorsive;
-- contesti archeologici (`deposit_type`, `excavation_technique`, geometria, cronologia multipla, oggetti trovati);
-- oggetti (`decoration`, `restoration`, composizione, misure, cronologia visuale);
-- ricerca full-text FTS5, export TEI-XML;
-- 163 test automatici.
+The first launch creates a sample project from the bundled database. The Dashboard includes **Delete all sample data**, which creates a backup and replaces the demo project with a clean database while retaining the database structure and controlled vocabularies.
 
-Distribuita come **pacchetto scaricabile** per macOS / Windows / Linux nelle [Releases](https://github.com/erasmdif/stele_epi/releases). Doppio clic sull'icona, nessuna riga di comando.
+> **Sample-data disclaimer:** the bundled records are realistic-looking, fictional mock-ups generated with AI for software demonstration. They are not real archaeological, epigraphic, historical, bibliographic, or scholarly evidence.
 
-## Sviluppo locale
-
-Per lavorare al codice:
+## Local development
 
 ```bash
 git clone https://github.com/erasmdif/stele_epi.git
-cd stele_epi
-
-# versione web: apri direttamente nel browser
-open web/index.html   # macOS
-xdg-open web/index.html   # Linux
-
-# versione desktop
-cd desktop
-python launcher.py    # avvia con setup automatico
-# oppure per sviluppatori:
-python -m venv .venv && source .venv/bin/activate
+cd stele_epi/desktop
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-python run.py         # avvio "sviluppo" (Flask debug ecc.)
-python -m pytest tests/   # test
+python run.py
+python -m unittest discover -s tests -p 'test_*.py'
 ```
 
-## Licenza
+The static web edition can be opened directly from `web/index.html`.
 
-Software libero. Made for digital humanists.
+## License
+
+Free software for digital humanists. See `LICENSE`.

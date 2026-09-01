@@ -32,20 +32,20 @@
     const scr = TA.SCRIPTS[doc.meta.script] || TA.SCRIPTS.other;
     $('#docHeader').hidden = false;
     $('#vScript').textContent = scr.label;
-    $('#vTitle').textContent = doc.meta.title || 'Documento senza titolo';
+    $('#vTitle').textContent = doc.meta.title || 'Untitled document';
     $('#vAuthor').textContent = doc.meta.author || '—';
     $('#vDesc').textContent = doc.meta.description || '—';
     filter = null;
     renderReader(); renderNotes(); renderStats();
-    setStatus('Documento caricato');
+    setStatus('Document loaded');
   }
 
   function renderStats() {
     const s = TA.docStats(doc);
     $('#statbar').innerHTML =
-      `<span>Righe: <b>${s.righe}</b></span><span>Token: <b>${s.token}</b></span>` +
-      `<span>Annotazioni: <b>${s.annotazioni}</b></span><span>Note: <b>${s.note}</b></span>` +
-      `<span>Luoghi: <b>${s.luoghi}</b></span>`;
+      `<span>Lines: <b>${s.righe}</b></span><span>Tokens: <b>${s.token}</b></span>` +
+      `<span>Annotations: <b>${s.annotazioni}</b></span><span>Notes: <b>${s.note}</b></span>` +
+      `<span>Places: <b>${s.luoghi}</b></span>`;
   }
 
   function renderReader() {
@@ -79,16 +79,16 @@
     const list = $('#annList');
     const all = doc.annotations.slice().sort((a, b) => a.start - b.start || a.end - b.end);
     const shown = all.filter(a => !filter || filter.has(TA.categoryOf(a)));
-    if (!all.length) { list.innerHTML = '<div class="empty-note">Questo documento non ha note.</div>'; return; }
-    if (!shown.length) { list.innerHTML = '<div class="empty-note">Nessuna nota per il filtro attivo.</div>'; return; }
+    if (!all.length) { list.innerHTML = '<div class="empty-note">This document has no notes.</div>'; return; }
+    if (!shown.length) { list.innerHTML = '<div class="empty-note">No notes match the active filter.</div>'; return; }
     const numOf = {}; all.forEach((a, i) => numOf[a.id] = i + 1);
     list.innerHTML = shown.map(a => {
       const meta = catMeta(a);
       const quote = TA.escapeHtml(doc.text.slice(a.start, a.end)) || '∅';
       const ref = TA.refLabel(doc.text, a.start, a.end);
       const isPlace = a.type === 'place';
-      const place = isPlace && a.place ? `<div class="place-meta">◎ ${TA.escapeHtml(a.place.name || 'luogo')}` +
-        (a.place.lat != null ? ` · ${a.place.lat.toFixed(4)}, ${a.place.lon.toFixed(4)}` : ' · senza coordinate') + `</div>` : '';
+      const place = isPlace && a.place ? `<div class="place-meta">◎ ${TA.escapeHtml(a.place.name || 'place')}` +
+        (a.place.lat != null ? ` · ${a.place.lat.toFixed(4)}, ${a.place.lon.toFixed(4)}` : ' · no coordinates') + `</div>` : '';
       return `<div class="ann-item" data-id="${a.id}" style="border-left-color:${meta.color}">
         <div class="row1">
           <span class="cat-dot" style="background:${meta.color}"></span>
@@ -100,7 +100,7 @@
           <span class="quote" style="font-family:${scriptFont()}">“${quote}”</span>
           <span class="ref">(${ref})</span>
         </div>
-        ${a.note ? `<div class="note-view">${TA.escapeHtml(a.note)}</div>` : '<div class="empty-note" style="padding:2px 0">— senza testo —</div>'}
+        ${a.note ? `<div class="note-view">${TA.escapeHtml(a.note)}</div>` : '<div class="empty-note" style="padding:2px 0">— no text —</div>'}
         <div class="row-bottom">
           <span class="pill" style="color:${meta.color};border-color:${meta.color}33;background:${meta.color}14">${meta.label}</span>
           ${(a.tags || []).map(t => '<span class="tag">' + TA.escapeHtml(t) + '</span>').join('')}
@@ -133,7 +133,7 @@
       const on = !filter || filter.has(p.cat);
       return `<label><input type="checkbox" data-cat="${p.cat}" ${on ? 'checked' : ''}>
         <span class="cat-dot" style="background:${m.color}"></span> ${m.label} <span class="num" style="margin-left:auto">${p.count}</span></label>`;
-    }).join('') || '<div class="hint">Nessuna categoria.</div>';
+    }).join('') || '<div class="hint">No categories.</div>';
     positionMenu(menu, btn);
     menu.addEventListener('change', () => {
       const checks = Array.from(menu.querySelectorAll('input[data-cat]'));
@@ -152,7 +152,7 @@
       const m = TA.CATEGORIES[p.cat];
       return `<div class="legend-row"><span class="cat-dot" style="background:${m.color}"></span> ${m.label}<span class="cnt">${p.count}</span></div>`;
     }).join('') +
-      '<div class="legend-note">Le annotazioni sovrapposte corrono come underline paralleli sotto al testo.</div>';
+      '<div class="legend-note">Overlapping annotations are shown as parallel underlines beneath the text.</div>';
     positionMenu(menu, btn);
   }
   function positionMenu(menu, btn) {
@@ -173,7 +173,7 @@
     markerLayer = L.layerGroup().addTo(map);
   }
   function renderMap() {
-    if (typeof L === 'undefined') { $('#map').innerHTML = '<div class="map-empty">Leaflet non caricato (rete assente).</div>'; return; }
+    if (typeof L === 'undefined') { $('#map').innerHTML = '<div class="map-empty">Leaflet could not be loaded (network unavailable).</div>'; return; }
     ensureMap(); setTimeout(() => map && map.invalidateSize(), 0);
     markerLayer.clearLayers();
     const places = doc.annotations.filter(a => a.type === 'place' && a.place && a.place.lat != null && a.place.lon != null);
@@ -204,19 +204,19 @@
         let d;
         if (/\.xml$/i.test(file.name) || /^\s*<\?xml/.test(text) || /<TEI/.test(text)) d = TA.fromTEI(text);
         else d = TA.normalizeDoc(JSON.parse(text));
-        show(d, file.name); toast('Documento caricato.', 'ok');
-      } catch (err) { toast('File non leggibile: ' + err.message, 'err'); }
+        show(d, file.name); toast('Document loaded.', 'ok');
+      } catch (err) { toast('Could not read the file: ' + err.message, 'err'); }
     };
     r.readAsText(file);
   }
   function loadSession() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) { toast('Nessuna sessione salvata.', 'warn'); return; }
+      if (!raw) { toast('No saved session.', 'warn'); return; }
       const d = TA.normalizeDoc(JSON.parse(raw));
-      if (!d.text && !d.annotations.length) { toast('La sessione è vuota.', 'warn'); return; }
-      show(d, 'sessione corrente');
-    } catch (e) { toast('Sessione non leggibile.', 'err'); }
+      if (!d.text && !d.annotations.length) { toast('The session is empty.', 'warn'); return; }
+      show(d, 'current session');
+    } catch (e) { toast('Could not read the current session.', 'err'); }
   }
   async function loadFromUrl(url) {
     try {
@@ -226,7 +226,7 @@
       if (/\.xml($|\?)/i.test(url) || /<TEI/.test(text)) d = TA.fromTEI(text);
       else d = TA.normalizeDoc(JSON.parse(text));
       show(d, url.split('/').pop());
-    } catch (e) { toast('Impossibile caricare ' + url + ' (' + e.message + ')', 'err'); }
+    } catch (e) { toast('Could not load ' + url + ' (' + e.message + ')', 'err'); }
   }
 
   function bind() {
@@ -241,7 +241,7 @@
     document.body.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) openFile(f); });
   }
   function start() {
-    bind(); setStatus('In attesa di un documento');
+    bind(); setStatus('Waiting for a document');
     const params = new URLSearchParams(location.search);
     if (params.get('from') === 'session' || params.get('session') === '1') { loadSession(); return; }
     const docUrl = params.get('doc');

@@ -26,7 +26,7 @@ def run():
     from stele_app.db import project
     app = create_app(dbpath); c = app.test_client()
     db = project.open_project(dbpath)
-    vid = db.execute("SELECT id FROM text_version WHERE version_type='transliteration'").fetchone()["id"]
+    vid = db.execute("SELECT id FROM text_version WHERE version_type='normalized'").fetchone()["id"]
 
     # 1. creo annotazione
     a1 = c.post(f"/api/text-versions/{vid}/annotations",
@@ -115,7 +115,7 @@ def run():
     # 11. pagina web della scheda risponde
     r = c.get(f"/vocabularies/{ares['id']}")
     ok("pagina /vocabularies/<id> 200", r.status_code == 200)
-    ok("pagina contiene la scheda", b"Rete semantica" in r.data and b"Occorrenze" in r.data)
+    ok("pagina contiene la scheda", b"Semantic network" in r.data and b"Text occurrences" in r.data)
 
     print("\n%d pass, %d fail" % (PASS["n"], FAIL["n"]))
     return FAIL["n"] == 0

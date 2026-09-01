@@ -25,7 +25,7 @@ def run():
     app = create_app(dbpath)
     c = app.test_client()
     db = project.open_project(dbpath)
-    vid = db.execute("SELECT id FROM text_version WHERE version_type='transliteration'").fetchone()["id"]
+    vid = db.execute("SELECT id FROM text_version WHERE version_type='normalized'").fetchone()["id"]
     content = db.execute("SELECT content FROM text_version WHERE id=?", (vid,)).fetchone()["content"]
     clen = len(list(content))
 

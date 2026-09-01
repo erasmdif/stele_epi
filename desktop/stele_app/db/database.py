@@ -38,8 +38,8 @@ def connect_postgres(url=None):
         import psycopg
     except ImportError as e:  # pragma: no cover
         raise RuntimeError(
-            "Backend PostgreSQL richiesto ma 'psycopg' non è installato. "
-            "Installa con: pip install psycopg[binary]") from e
+            "The PostgreSQL backend requires 'psycopg', but it is not installed. "
+            "Install it with: pip install psycopg[binary]") from e
     url = url or os.environ["STELE_DB_URL"]
     conn = psycopg.connect(url, autocommit=False)
     return conn
@@ -52,7 +52,7 @@ def connect(path=None):
     if path is None:
         path = os.environ.get("STELE_PROJECT_DB")
         if not path:
-            raise RuntimeError("Percorso del progetto non specificato (STELE_PROJECT_DB).")
+            raise RuntimeError("Project path not specified (STELE_PROJECT_DB).")
     return connect_sqlite(path)
 
 

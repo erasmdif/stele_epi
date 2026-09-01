@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block heading %}Cronologia{% endblock %}
+{% block heading %}Chronology{% endblock %}
 {% block content %}
-<div class="panel"><div class="head"><h2>Termini cronologici</h2></div><div class="body" style="padding:0"><table>
-<thead><tr><th>Periodo</th><th>Da</th><th>A</th><th>Precisione</th></tr></thead><tbody>
+<div class="panel"><div class="head"><h2>Chronology terms</h2></div><div class="body" style="padding:0"><table>
+<thead><tr><th>Period</th><th>From</th><th>To</th><th>Precision</th></tr></thead><tbody>
 {% for t in terms %}<tr><td>{{ t.preferred_label }}</td>
 <td class="mono">{{ t.year_from if t.year_from is not none else '—' }}</td>
 <td class="mono">{{ t.year_to if t.year_to is not none else '—' }}</td>
 <td>{{ t.precision or '—' }}</td></tr>{% endfor %}
 </tbody></table></div></div>
-<p class="muted" style="margin-top:8px">Anni in numerazione astronomica (1 a.C. = 0).</p>
+<p class="muted" style="margin-top:8px">Years use astronomical numbering (1 BCE = 0).</p>
 {% endblock %}

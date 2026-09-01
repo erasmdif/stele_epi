@@ -34,6 +34,8 @@ h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.2;margin:.2em 
 .sidebar .foot{margin-top:auto;font-size:11px;color:var(--line-strong);padding:8px 12px}
 
 .main{grid-area:main;padding:20px 24px;overflow:auto}
+.sample-warning{margin:0 0 18px;padding:11px 14px;border:1px solid #c88b78;border-left:4px solid var(--danger);border-radius:var(--radius);background:#fff3ef;color:#6e3024;font-size:13px;box-shadow:var(--shadow)}
+.sample-warning strong{color:#8c2f1d}
 .foot{grid-area:foot;display:flex;align-items:center;gap:12px;padding:7px 18px;background:var(--paper);border-top:1px solid var(--line);font-size:12px;color:var(--ink-soft)}
 .foot .spacer{flex:1}
 .foot .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}

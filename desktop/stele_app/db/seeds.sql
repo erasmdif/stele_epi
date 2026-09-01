@@ -29,4 +29,5 @@ INSERT INTO relation_type (code,label,inverse_label,domain,is_symmetric,is_hiera
  ('SAME_SCHOOL','same school','same school','object',1,0),
  ('POSSIBLE_SAME_PRODUCTION','possible same production','possible same production','object',1,0),
  ('TEXTUAL_COMPANION_OF','textual companion of','textual companion of','object',1,0),
- ('OTHER_SCIENTIFIC_ASSOCIATION','scientific association','scientific association','object',1,0);
+ ('OTHER_SCIENTIFIC_ASSOCIATION','scientific association','scientific association','object',1,0),
+ ('FRAGMENT_OF','fragment of','composed of','object',0,1);
