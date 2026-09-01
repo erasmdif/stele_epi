@@ -25,7 +25,7 @@
       excavation_method_note:$('#fExcavationMethodNote').value,
       preservation_note:$('#fPreservationNote').value,
     };
-    try{await api('PATCH',`/api/context/${OWNER_ID}`,body); toast('Saved.','ok');}
+    try{await api('PATCH',`/api/context/${OWNER_ID}`,body); toast('Salvato.','ok');}
     catch(e){toast(e.message,'err');}
   });
 
@@ -39,7 +39,7 @@
   // rimozione assegnazione termine
   $$('#termsList .rm').forEach(b=>b.addEventListener('click',async()=>{
     const aid=b.closest('[data-aid]').dataset.aid;
-    if(!confirm('Remove this assignment?'))return;
+    if(!confirm('Rimuovere questa assegnazione?'))return;
     try{await api('DELETE',`/api/${OWNER_KIND}-term-assignments/${aid}`); location.reload();}
     catch(e){toast(e.message,'err');}
   }));
@@ -52,9 +52,9 @@
     host.querySelectorAll('.term-menu').forEach(m=>m.remove());
     const m=document.createElement('div'); m.className='term-menu'; m.style.position='relative';
     m.innerHTML=`
-      <input placeholder="search or create a term…">
+      <input placeholder="cerca o crea termine…">
       <div class="res"></div>
-      <div class="create-hint">Type to search or create a new ${vocabTable} term.</div>`;
+      <div class="create-hint">Digita per cercare o creare un nuovo termine di ${vocabTable}.</div>`;
     host.appendChild(m);
     const inp=m.querySelector('input'), res=m.querySelector('.res'); let t=null;
     async function search(){
@@ -66,7 +66,7 @@
         if(!exact){
           html+=`<div class="primary-create" id="createNew">
             <span class="plus">＋</span>
-            <span>Create <b>“${esc(val)}”</b> as a new term</span>
+            <span>Crea <b>«${esc(val)}»</b> come nuovo termine</span>
           </div>`;
         }
       }
@@ -108,16 +108,16 @@
         : '<span class="muted">—</span>';
       return `<div class="row-line" data-did="${d.id}">
         ${range}
-        <span class="tag">${d.dating_method||'method not specified'}</span>
+        <span class="tag">${d.dating_method||'metodo non specificato'}</span>
         ${d.certainty?`<span class="muted" style="font-size:11px">${d.certainty}</span>`:''}
         ${d.term_label?`<span style="font-size:12px">· <a href="/vocab/chronology_term/${d.chronology_term_id}">${esc(d.term_label)}</a></span>`:''}
         ${d.note?`<span class="muted" style="font-size:12px">— ${esc(d.note)}</span>`:''}
-        <button class="rm" title="Remove dating">×</button>
+        <button class="rm" title="Rimuovi datazione">×</button>
       </div>`;
     }).join('');
     box.querySelectorAll('.rm').forEach(b=>b.addEventListener('click',async()=>{
       const did=b.closest('[data-did]').dataset.did;
-      if(!confirm('Remove this dating?'))return;
+      if(!confirm('Rimuovere questa datazione?'))return;
       try{await api('DELETE',`/api/${OWNER_KIND}-datings/${did}`); location.reload();}
       catch(e){toast(e.message,'err');}
     }));
@@ -134,15 +134,15 @@
     form.className='dating-form';
     form.style.cssText='border:1px solid var(--line-strong);border-radius:6px;padding:12px;margin-top:8px;background:#fbfaf6';
     form.innerHTML=`
-      <p class="eyebrow" style="margin:0 0 6px">New dating</p>
+      <p class="eyebrow" style="margin:0 0 6px">Nuova datazione</p>
       <p class="muted" style="font-size:12px;margin:0 0 8px">
-        Choose a chronology term and inherit its years, <b>or</b> enter free years.
-        You may combine both: entered years override the term's values.
+        Scegli un termine cronologico (gli anni si prendono da lì) <b>oppure</b> inserisci gli anni liberi.
+        Puoi combinare entrambi: se metti gli anni, sovrascrivono quelli del termine.
       </p>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-        <label style="font-size:11px;color:var(--ink-soft)">Chronology term
+        <label style="font-size:11px;color:var(--ink-soft)">Termine cronologico
           <div style="position:relative">
-            <input id="dfTerm" placeholder="search…" style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px">
+            <input id="dfTerm" placeholder="cerca…" style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px">
             <input type="hidden" id="dfTermId">
             <div id="dfTermRes" class="res" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--paper);border:1px solid var(--line-strong);border-radius:5px;max-height:150px;overflow:auto;z-index:20"></div>
           </div>
@@ -155,13 +155,13 @@
                  style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px"></label>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
-        <label style="font-size:11px;color:var(--ink-soft)">Method
+        <label style="font-size:11px;color:var(--ink-soft)">Metodo
           <select id="dfMethod" style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px">
             <option value="">— non specificato —</option>
             ${enums.dating_methods.map(m=>`<option>${m}</option>`).join('')}
           </select>
         </label>
-        <label style="font-size:11px;color:var(--ink-soft)">Certainty
+        <label style="font-size:11px;color:var(--ink-soft)">Certezza
           <select id="dfCert" style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px">
             <option value="">—</option><option>certain</option><option>probable</option>
             <option>possible</option><option>uncertain</option><option>unknown</option>
@@ -169,12 +169,12 @@
         </label>
       </div>
       <label style="font-size:11px;color:var(--ink-soft);display:block;margin-top:8px">Nota
-        <input id="dfNote" placeholder="for example: palaeographic dating independent of context"
+        <input id="dfNote" placeholder="es. datazione paleografica indipendente dal contesto"
                style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px">
       </label>
       <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:10px">
-        <button class="btn mini" id="dfCancel">Cancel</button>
-        <button class="btn mini primary" id="dfSave">Add</button>
+        <button class="btn mini" id="dfCancel">Annulla</button>
+        <button class="btn mini primary" id="dfSave">Aggiungi</button>
       </div>`;
     host.appendChild(form);
 

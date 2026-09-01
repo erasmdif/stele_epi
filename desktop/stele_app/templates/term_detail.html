@@ -1,54 +1,54 @@
 {% extends "base.html" %}
-{% block heading %}{{ t.preferred_label }} — dictionary record{% endblock %}
+{% block heading %}{{ t.preferred_label }} — record di dizionario{% endblock %}
 {% block content %}
-<div class="crumb"><a href="{{ url_for('web.vocabularies') }}">Vocabularies</a> / {{ t.preferred_label }}</div>
+<div class="crumb"><a href="{{ url_for('web.vocabularies') }}">Vocabolari</a> / {{ t.preferred_label }}</div>
 
 <div class="two" style="margin-top:12px">
   <!-- COLONNA SX: identità del record -->
   <div class="panel">
-    <div class="head"><h2>Identity</h2><span class="spacer"></span>
-      <button class="btn mini" id="btnSaveIdentity">Save</button>
-      <button class="btn mini" id="btnDelete" title="Delete record">Delete</button></div>
+    <div class="head"><h2>Identità</h2><span class="spacer"></span>
+      <button class="btn mini" id="btnSaveIdentity">Salva</button>
+      <button class="btn mini" id="btnDelete" title="Elimina il record">Elimina</button></div>
     <div class="body">
-      <p class="eyebrow">Preferred label</p>
+      <p class="eyebrow">Etichetta preferita</p>
       <input id="fPreferred" value="{{ t.preferred_label }}" style="width:100%;font:inherit;font-size:16px;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">
-      <p class="eyebrow" style="margin-top:10px">Type</p>
+      <p class="eyebrow" style="margin-top:10px">Tipo</p>
       <select id="fType" style="font:inherit;padding:4px 6px;border:1px solid var(--line-strong);border-radius:5px">
         {% for tt in ['person','deity','place','institution','ethnonym','formula','abbreviation','concept','quantity','event','title','office','object_concept','other'] %}
           <option value="{{ tt }}" {{ 'selected' if t.term_type==tt else '' }}>{{ tt }}</option>
         {% endfor %}
       </select>
-      <p class="eyebrow" style="margin-top:10px">Description</p>
+      <p class="eyebrow" style="margin-top:10px">Descrizione</p>
       <textarea id="fDescription" style="width:100%;min-height:70px;font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">{{ t.description or '' }}</textarea>
 
-      <p class="eyebrow" style="margin-top:14px">Alternative labels ({{ t.labels|length }})</p>
+      <p class="eyebrow" style="margin-top:14px">Etichette alternative ({{ t.labels|length }})</p>
       <div id="labels">
         {% for l in t.labels %}
           <div class="row-line" data-lid="{{ l.id }}">
             <span class="mono">{{ l.label }}</span>
             <span class="tag">{{ l.label_type }}</span>
             {% if l.language %}<span class="muted">{{ l.language }}</span>{% endif %}
-            <button class="rm" title="Remove">×</button>
+            <button class="rm" title="Rimuovi">×</button>
           </div>
         {% endfor %}
       </div>
       <div class="add-row" style="margin-top:6px">
-        <input id="newLabel" placeholder="new label…">
+        <input id="newLabel" placeholder="nuova etichetta…">
         <select id="newLabelType">
           {% for lt in ['alternative','abbreviation','historical','transliteration','preferred','other'] %}<option>{{ lt }}</option>{% endfor %}
         </select>
-        <input id="newLabelLang" placeholder="language" style="width:70px">
+        <input id="newLabelLang" placeholder="lingua" style="width:70px">
         <button class="btn mini primary" id="btnAddLabel">+</button>
       </div>
 
-      <p class="eyebrow" style="margin-top:14px">External identifiers ({{ t.external_ids|length }})</p>
+      <p class="eyebrow" style="margin-top:14px">Identificativi esterni ({{ t.external_ids|length }})</p>
       <div id="externals">
         {% for x in t.external_ids %}
           <div class="row-line" data-xid="{{ x.id }}">
             <span class="tag">{{ x.authority }}</span>
             <span class="mono">{{ x.identifier }}</span>
             {% if x.uri %}<a href="{{ x.uri }}" target="_blank" class="muted" style="font-size:12px">↗</a>{% endif %}
-            <button class="rm" title="Remove">×</button>
+            <button class="rm" title="Rimuovi">×</button>
           </div>
         {% endfor %}
       </div>
@@ -57,17 +57,17 @@
           <option>Wikidata</option><option>VIAF</option><option>GeoNames</option>
           <option>Pleiades</option><option>Trismegistos</option><option>PHI</option><option>Other</option>
         </select>
-        <input id="newIdentifier" placeholder="identifier (for example Q37122)">
-        <input id="newUri" placeholder="URI (optional)">
+        <input id="newIdentifier" placeholder="identificativo (es. Q37122)">
+        <input id="newUri" placeholder="URI (facoltativo)">
         <button class="btn mini primary" id="btnAddExternal">+</button>
       </div>
 
       {% if t.term_type == 'place' %}
-      <p class="eyebrow" style="margin-top:14px">Geometry</p>
+      <p class="eyebrow" style="margin-top:14px">Geometria</p>
       <div id="placeInfo" class="muted" style="font-size:13px">
         {% if t.place %}◎ {{ '%.4f'|format(t.place.lat) }}, {{ '%.4f'|format(t.place.lon) }}
           <span class="tag">{{ t.place.precision or 'approximate' }}</span>
-        {% else %}no assigned geometry{% endif %}
+        {% else %}nessuna geometria assegnata{% endif %}
       </div>
       {% endif %}
     </div>
@@ -75,17 +75,17 @@
 
   <!-- COLONNA DX: rete + occorrenze -->
   <div style="display:flex;flex-direction:column;gap:16px">
-    <div class="panel"><div class="head"><h2>Semantic network</h2><span class="spacer"></span>
-      <a class="btn mini" href="{{ url_for('web.relations') }}?focus={{ t.id }}">Open in graph →</a></div>
+    <div class="panel"><div class="head"><h2>Rete semantica</h2><span class="spacer"></span>
+      <a class="btn mini" href="{{ url_for('web.relations') }}?focus={{ t.id }}">Apri nel grafo →</a></div>
       <div class="body">
         {% if t.ancestors %}
-        <p class="eyebrow">Inferred hierarchy</p>
+        <p class="eyebrow">Gerarchia (inferita)</p>
         <div style="font-size:13px">{{ t.preferred_label }}
           {% for a in t.ancestors %}<span class="muted">→</span>
             <a href="{{ url_for('web.term_page', term_id=a.id) }}">{{ a.preferred_label }}</a>
           {% endfor %}</div>
         {% endif %}
-        <p class="eyebrow" style="margin-top:10px">Direct relations ({{ t.neighbours|length }})</p>
+        <p class="eyebrow" style="margin-top:10px">Relazioni dirette ({{ t.neighbours|length }})</p>
         <div id="neighbours">
           {% for n in t.neighbours %}
           <div class="row-line" data-source="{% if n.dir=='out' %}{{ t.id }}{% else %}{{ n.other_id }}{% endif %}"
@@ -94,14 +94,14 @@
             <span class="muted" style="font-size:12px">{{ '↩' if n.dir=='in' else '' }}</span>
             <span class="tag">{{ n.rel_label }}</span> →
             <a href="{{ url_for('web.term_page', term_id=n.other_id) }}">{{ n.other_label }}</a>
-            <button class="rm" title="Remove relation">×</button>
+            <button class="rm" title="Rimuovi relazione">×</button>
           </div>
           {% else %}
-          <div class="muted" style="font-size:13px">No relations. Use the button below to add semantic depth to this record.</div>
+          <div class="muted" style="font-size:13px">Nessuna relazione. Usa il pulsante qui sotto per costruire la profondità del record.</div>
           {% endfor %}
         </div>
         <div id="addRelBox" style="margin-top:10px">
-          <button class="btn mini primary" id="btnAddRel">+ Link another term…</button>
+          <button class="btn mini primary" id="btnAddRel">+ Collega a un altro termine…</button>
         </div>
         {% if t.descendants %}
         <p class="eyebrow" style="margin-top:12px">Include ({{ t.descendants|length }})</p>
@@ -113,18 +113,18 @@
         {% endif %}
       </div></div>
 
-    <div class="panel"><div class="head"><h2>Text occurrences ({{ t.occurrences|length }})</h2></div>
+    <div class="panel"><div class="head"><h2>Occorrenze nei testi ({{ t.occurrences|length }})</h2></div>
       <div class="body" style="padding:0"><table>
-        <thead><tr><th>Document</th><th>Annotation type</th><th>Context</th><th></th></tr></thead>
+        <thead><tr><th>Documento</th><th>Tipo annot.</th><th>Contesto</th><th></th></tr></thead>
         <tbody>
         {% for o in t.occurrences %}
         <tr><td class="mono">{{ o.siglum or '—' }}</td>
           <td><span class="tag">{{ o.annotation_type }}</span></td>
           <td class="mono" style="font-family:var(--lb);font-size:15px">
             {% if o.start_position is not none %}“{{ o.content[o.start_position:o.end_position] }}”{% endif %}</td>
-          <td><a class="btn mini" href="{{ url_for('web.annotate', doc_id=o.document_id) }}">Open text →</a></td></tr>
+          <td><a class="btn mini" href="{{ url_for('web.annotate', doc_id=o.document_id) }}">Apri testo →</a></td></tr>
         {% else %}
-        <tr><td colspan="4" class="muted">No occurrences. This record is not linked to any annotation.</td></tr>
+        <tr><td colspan="4" class="muted">Nessuna occorrenza — questo record non è ancora collegato ad alcuna annotazione.</td></tr>
         {% endfor %}
         </tbody></table></div></div>
   </div>

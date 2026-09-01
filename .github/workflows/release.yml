@@ -147,7 +147,7 @@ jobs:
           Version=1.0
           Type=Application
           Name=Stele Desktop
-          Comment=Tools for digital epigraphy
+          Comment=Strumenti per l'epigrafia digitale
           Exec=bash run.sh
           Icon=document-edit
           Categories=Office;

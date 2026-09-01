@@ -37,10 +37,10 @@
   function autosave() {
     doc.meta.modified = new Date().toISOString();
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(doc)); } catch (e) {}
-    const t = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    setStatus('Saved ' + t, false);
+    const t = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    setStatus('Salvato ' + t, false);
   }
-  function markPending() { setStatus('Unsaved changes…', true); }
+  function markPending() { setStatus('Modifiche non salvate…', true); }
   function scheduleSave() { markPending(); clearTimeout(saveTimer); saveTimer = setTimeout(autosave, 500); }
 
   /* --- scripts ------------------------------------------------------------*/
@@ -65,7 +65,7 @@
     $('#glyphGrid').innerHTML = items.slice(0, 240).map(x =>
       `<button class="glyph" data-char="${x.char}" title="U+${x.hex}${x.translit ? ' · ' + x.translit : ''}">
         <span class="g">${x.char}</span><span class="t">${x.translit || x.hex}</span></button>`).join('')
-      || '<div class="hint" style="padding:8px">No signs found.</div>';
+      || '<div class="hint" style="padding:8px">Nessun segno.</div>';
     $$('#glyphGrid .glyph').forEach(b => b.addEventListener('click', () => insertAtCursor(b.getAttribute('data-char'))));
   }
   function insertAtCursor(str) {
@@ -100,7 +100,7 @@
     doc.annotations = res.annotations;
     if (res.orphans.length) {
       doc.annotations = doc.annotations.concat([]); // orphans scartate: segnalo
-      toast(res.orphans.length + ' annotation(s) removed because the edit crossed their boundaries.', 'warn');
+      toast(res.orphans.length + ' annotazione/i rimossa/e: la modifica ne attraversava il confine.', 'warn');
     }
     if ($('#source').value !== newText) $('#source').value = newText;
     scheduleRender(); scheduleSave();
@@ -113,9 +113,9 @@
   function renderStats() {
     const s = TA.docStats(doc);
     $('#statbar').innerHTML =
-      `<span>Lines: <b>${s.righe}</b></span><span>Tokens: <b>${s.token}</b></span>` +
-      `<span>Annotations: <b>${s.annotazioni}</b></span><span>Notes: <b>${s.note}</b></span>` +
-      `<span>Places: <b>${s.luoghi}</b></span>`;
+      `<span>Righe: <b>${s.righe}</b></span><span>Token: <b>${s.token}</b></span>` +
+      `<span>Annotazioni: <b>${s.annotazioni}</b></span><span>Note: <b>${s.note}</b></span>` +
+      `<span>Luoghi: <b>${s.luoghi}</b></span>`;
   }
   function renderReader() {
     const reader = $('#reader');
@@ -153,8 +153,8 @@
     const all = doc.annotations.slice().sort((a, b) => a.start - b.start || a.end - b.end);
     const numOf = {}; all.forEach((a, i) => numOf[a.id] = i + 1);
     const shown = all.filter(a => !filter || filter.has(TA.categoryOf(a)));
-    if (!all.length) { list.innerHTML = '<div class="empty-note">No annotations. Select a text span and use the buttons on the left.</div>'; return; }
-    if (!shown.length) { list.innerHTML = '<div class="empty-note">No notes match the active filter.</div>'; return; }
+    if (!all.length) { list.innerHTML = '<div class="empty-note">Nessuna annotazione. Seleziona una porzione di testo e usa i pulsanti qui a sinistra.</div>'; return; }
+    if (!shown.length) { list.innerHTML = '<div class="empty-note">Nessuna nota per il filtro attivo.</div>'; return; }
     list.innerHTML = shown.map(a => {
       const meta = catMeta(a);
       const quote = TA.escapeHtml(doc.text.slice(a.start, a.end)) || '∅';
@@ -163,25 +163,25 @@
       const opts = TA.CATEGORY_ORDER.map(c =>
         `<option value="${c}" ${TA.categoryOf(a) === c ? 'selected' : ''}>${TA.CATEGORIES[c].label}</option>`).join('');
       const place = isPlace ? `<div class="place-meta">${a.place && a.place.lat != null
-        ? '◎ ' + TA.escapeHtml(a.place.name || 'place') + ' · ' + a.place.lat.toFixed(4) + ', ' + a.place.lon.toFixed(4)
-        : '○ place without coordinates'}</div>` : '';
+        ? '◎ ' + TA.escapeHtml(a.place.name || 'luogo') + ' · ' + a.place.lat.toFixed(4) + ', ' + a.place.lon.toFixed(4)
+        : '○ luogo senza coordinate'}</div>` : '';
       return `<div class="ann-item" data-id="${a.id}" style="border-left-color:${meta.color}">
         <div class="row1">
           <span class="cat-dot" style="background:${meta.color}"></span>
-          <span class="cat-label">Type: <b>${meta.label}</b></span>
+          <span class="cat-label">Tipo: <b>${meta.label}</b></span>
           <span class="num" style="margin-left:auto">#${numOf[a.id]}</span>
-          <button class="kebab" data-act="del" title="Delete">×</button>
+          <button class="kebab" data-act="del" title="Elimina">×</button>
         </div>
         <div class="row2">
           <span class="quote" style="font-family:${scriptFont()}">“${quote}”</span>
           <span class="ref">(${ref})</span>
         </div>
-        <textarea data-note placeholder="Annotation…">${TA.escapeHtml(a.note)}</textarea>
-        <input type="text" data-tags class="search" style="margin-top:6px" placeholder="comma-separated tags" value="${TA.escapeHtml((a.tags || []).join(', '))}">
+        <textarea data-note placeholder="Annotazione…">${TA.escapeHtml(a.note)}</textarea>
+        <input type="text" data-tags class="search" style="margin-top:6px" placeholder="tag, separati, da, virgole" value="${TA.escapeHtml((a.tags || []).join(', '))}">
         <div class="row-bottom">
           <select class="cat-select" data-cat>${opts}</select>
-          <button class="btn small" data-act="goto">Go to text</button>
-          ${isPlace ? '<button class="btn small" data-act="geo">◎ Coordinates</button>' : ''}
+          <button class="btn small" data-act="goto">Vai al testo</button>
+          ${isPlace ? '<button class="btn small" data-act="geo">◎ Coordinate</button>' : ''}
         </div>
         ${place}
       </div>`;
@@ -237,7 +237,7 @@
   }
   function addNote(category) {
     const sel = getSelection();
-    if (!sel) { toast('Select a text span first.', 'warn'); return null; }
+    if (!sel) { toast('Seleziona prima una porzione di testo.', 'warn'); return null; }
     const cat = category || 'nota';
     const a = {
       id: TA.uid(), start: sel.start, end: sel.end,
@@ -279,12 +279,12 @@
   }
   async function doGeoSearch() {
     const p = $('#geoProvider').value, q = $('#geoQuery').value.trim();
-    if (!q) { toast('Enter a search query.', 'warn'); return; }
-    $('#geoResults').innerHTML = '<div class="hint">Searching…</div>';
+    if (!q) { toast('Inserisci un testo da cercare.', 'warn'); return; }
+    $('#geoResults').innerHTML = '<div class="hint">Ricerca in corso…</div>';
     try {
       const res = p === 'geonames' ? await TA.geocodeGeoNames(q, settings.geonamesUser) : await TA.geocodeNominatim(q);
       geoResultsCache = res;
-      if (!res.length) { $('#geoResults').innerHTML = '<div class="hint">No results.</div>'; return; }
+      if (!res.length) { $('#geoResults').innerHTML = '<div class="hint">Nessun risultato.</div>'; return; }
       $('#geoResults').innerHTML = res.map((r, i) =>
         `<button class="btn geo-item" data-i="${i}"><span class="g-name">${TA.escapeHtml(r.name)}</span><br>
           <span class="g-meta">${r.lat.toFixed(4)}, ${r.lon.toFixed(4)}${r.detail ? ' · ' + TA.escapeHtml(r.detail) : ''}</span></button>`).join('');
@@ -302,16 +302,16 @@
     let place;
     if (p === 'manual') {
       const lat = parseFloat($('#geoLat').value), lon = parseFloat($('#geoLon').value);
-      if (!(isFinite(lat) && isFinite(lon))) { toast('Invalid coordinates.', 'err'); return; }
+      if (!(isFinite(lat) && isFinite(lon))) { toast('Coordinate non valide.', 'err'); return; }
       place = { name: $('#geoName').value.trim() || doc.text.slice(a.start, a.end), lat, lon, source: 'manual', detail: '' };
     } else {
       const i = Number($('#geoConfirm').getAttribute('data-i'));
-      const r = geoResultsCache[i]; if (!r) { toast('Choose a result.', 'warn'); return; }
+      const r = geoResultsCache[i]; if (!r) { toast('Scegli un risultato.', 'warn'); return; }
       place = { name: r.name, lat: r.lat, lon: r.lon, source: r.source, detail: r.detail || '' };
     }
     a.type = 'place'; a.category = 'luogo'; a.color = TA.colorForCategory('luogo'); a.place = place;
     $('#geoModal').classList.remove('open');
-    renderAll(); autosave(); toast('Coordinates assigned.', 'ok');
+    renderAll(); autosave(); toast('Coordinate assegnate.', 'ok');
   }
 
   /* --- mappa --------------------------------------------------------------*/
@@ -356,7 +356,7 @@
     menu.innerHTML = present.map(p => { const m = TA.CATEGORIES[p.cat]; const on = !filter || filter.has(p.cat);
       return `<label><input type="checkbox" data-cat="${p.cat}" ${on ? 'checked' : ''}>
         <span class="cat-dot" style="background:${m.color}"></span> ${m.label} <span class="num" style="margin-left:auto">${p.count}</span></label>`;
-    }).join('') || '<div class="hint">No categories.</div>';
+    }).join('') || '<div class="hint">Nessuna categoria.</div>';
     positionMenu(menu, btn);
     menu.addEventListener('change', () => {
       const checks = Array.from(menu.querySelectorAll('input[data-cat]'));
@@ -370,7 +370,7 @@
     const menu = document.createElement('div'); menu.className = 'legend-menu';
     menu.innerHTML = TA.CATEGORY_ORDER.map(c => { const m = TA.CATEGORIES[c]; const f = present.find(p => p.cat === c);
       return `<div class="legend-row"><span class="cat-dot" style="background:${m.color}"></span> ${m.label}<span class="cnt">${f ? f.count : 0}</span></div>`;
-    }).join('') + '<div class="legend-note">Overlapping annotations are shown as parallel underlines beneath the text.</div>';
+    }).join('') + '<div class="legend-note">Le annotazioni sovrapposte corrono come underline paralleli sotto al testo.</div>';
     positionMenu(menu, btn);
   }
   function positionMenu(menu, btn) {
@@ -400,32 +400,32 @@
         let d;
         if (/\.xml$/i.test(file.name) || /^\s*<\?xml/.test(text) || /<TEI/.test(text)) d = TA.fromTEI(text);
         else d = TA.normalizeDoc(JSON.parse(text));
-        loadDocIntoUI(d, file.name); toast('Document loaded.', 'ok');
-      } catch (err) { toast('Could not read file: ' + err.message, 'err'); }
+        loadDocIntoUI(d, file.name); toast('Documento caricato.', 'ok');
+      } catch (err) { toast('File non leggibile: ' + err.message, 'err'); }
     };
     r.readAsText(file);
   }
   function newDoc() {
-    if (doc.text || doc.annotations.length) { if (!confirm('Create a new document? Unexported changes will be lost.')) return; }
+    if (doc.text || doc.annotations.length) { if (!confirm('Creare un nuovo documento? Le modifiche non esportate andranno perse.')) return; }
     doc = TA.newDoc(); activeId = null; currentName = '';
     $('#mTitle').value = ''; $('#mAuthor').value = ''; $('#source').value = '';
-    fillScripts(); updateGutter(); renderAll(); autosave(); setStatus('New document');
+    fillScripts(); updateGutter(); renderAll(); autosave(); setStatus('Nuovo documento');
   }
   function currentFilename(ext) {
-    const base = TA.slugify(doc.meta.title || (currentName ? currentName.replace(/\.[^.]+$/, '') : 'document'));
+    const base = TA.slugify(doc.meta.title || (currentName ? currentName.replace(/\.[^.]+$/, '') : 'documento'));
     return base + ext;
   }
   function saveJson() {
     doc.meta.title = $('#mTitle').value; doc.meta.author = $('#mAuthor').value;
     const name = currentFilename('.json');
     TA.download(name, JSON.stringify(doc, null, 2), 'application/json');
-    currentName = name; setStatus('Exported ' + name); autosave();
+    currentName = name; setStatus('Esportato ' + name); autosave();
   }
   function exportTei() {
     doc.meta.title = $('#mTitle').value; doc.meta.author = $('#mAuthor').value;
     const name = currentFilename('.tei.xml');
     TA.download(name, TA.toTEI(doc), 'application/xml');
-    toast('TEI exported.', 'ok');
+    toast('TEI esportato.', 'ok');
   }
 
   /* --- bind ---------------------------------------------------------------*/
@@ -450,7 +450,7 @@
     $('#glyphSearch').addEventListener('input', renderPalette);
     $('#cpInsert').addEventListener('click', () => {
       const p = LinearB.parseCodePoint($('#cpInput').value);
-      if (!p) { toast('Invalid code point. Use U+10000–U+100FF.', 'warn'); return; }
+      if (!p) { toast('Code point non valido (usa U+10000–U+100FF).', 'warn'); return; }
       insertAtCursor(p.char); $('#cpInput').value = '';
     });
 
@@ -465,7 +465,7 @@
 
     // xml
     $('#btnCopyXml').addEventListener('click', () => {
-      navigator.clipboard.writeText(TA.toTEI(doc)).then(() => toast('XML copied.', 'ok'), () => toast('Copy failed.', 'err'));
+      navigator.clipboard.writeText(TA.toTEI(doc)).then(() => toast('XML copiato.', 'ok'), () => toast('Copia non riuscita.', 'err'));
     });
 
     // file
@@ -493,7 +493,7 @@
     // settings modal
     $('#btnSettings').addEventListener('click', () => { $('#geonamesUser').value = settings.geonamesUser || ''; $('#settingsModal').classList.add('open'); });
     $('#setClose').addEventListener('click', () => $('#settingsModal').classList.remove('open'));
-    $('#setSave').addEventListener('click', () => { settings.geonamesUser = $('#geonamesUser').value.trim(); saveSettings(); $('#settingsModal').classList.remove('open'); toast('Settings saved.', 'ok'); });
+    $('#setSave').addEventListener('click', () => { settings.geonamesUser = $('#geonamesUser').value.trim(); saveSettings(); $('#settingsModal').classList.remove('open'); toast('Impostazioni salvate.', 'ok'); });
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') $$('.modal-back.open').forEach(m => m.classList.remove('open')); });
   }
@@ -505,8 +505,8 @@
   function start() {
     loadSettings(); fillScripts(); bind(); renderPalette();
     const restored = restore();
-    if (restored) { loadDocIntoUI(restored, currentName); setStatus('Session restored'); }
-    else { updateGutter(); renderAll(); setStatus('New document'); }
+    if (restored) { loadDocIntoUI(restored, currentName); setStatus('Sessione ripristinata'); }
+    else { updateGutter(); renderAll(); setStatus('Nuovo documento'); }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();

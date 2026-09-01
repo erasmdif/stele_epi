@@ -21,6 +21,7 @@
     <nav class="topnav">
       <a href="web/">Try online</a>
       <a href="#desktop">Stele Desktop</a>
+      <a href="#presentation">Presentation</a>
       <a href="https://github.com/erasmdif/stele_epi" target="_blank" rel="noopener">Source ↗</a>
     </nav>
     <div class="wm" aria-hidden="true">𐀀𐀁𐀂𐀃𐀄
@@ -108,24 +109,56 @@
             </div>
           </div>
           <div class="install-guide">
-            <p class="guide-title">How to install &amp; run:</p>
-            <div class="guide-steps">
-              <div class="guide-os" data-os="macos">
-                <p><strong>macOS:</strong> Download <code>Stele-macOS.zip</code> → unzip → double-click <code>Stele.app</code></p>
-              </div>
-              <div class="guide-os" data-os="windows">
-                <p><strong>Windows:</strong> Download <code>Stele-Windows.zip</code> → extract → double-click <code>Stele Desktop.exe</code></p>
-              </div>
-              <div class="guide-os" data-os="linux">
-                <p><strong>Linux:</strong> Download <code>Stele-Linux.tar.gz</code> → <code>tar -xzf Stele-Linux.tar.gz && cd Stele && ./run.sh</code></p>
-              </div>
-            </div>
+            <p class="guide-title">Download and launch Stele Desktop</p>
+            <ol class="install-steps">
+              <li>
+                <strong>Open the release page.</strong> Use the large download button above. It detects
+                your operating system automatically; if it identifies the wrong one, select
+                <a href="https://github.com/erasmdif/stele_epi/releases/latest">macOS, Windows or Linux</a>
+                from the links below the button.
+              </li>
+              <li>
+                <strong>Choose the correct release asset.</strong> On GitHub, download one of the first
+                three files shown under <em>Assets</em>: <code>Stele-Linux.tar.gz</code>,
+                <code>Stele-macOS.zip</code> or <code>Stele-Windows.zip</code>. The two
+                <em>Source code</em> archives are not application installers.
+                <figure class="release-shot">
+                  <img src="assets/img/stele-release-assets-v1.0.2.png"
+                       alt="GitHub release page showing the Linux, macOS and Windows Stele packages above the source-code archives"
+                       width="1240" height="540" loading="lazy">
+                  <figcaption>Select the package matching your operating system from the first three assets.</figcaption>
+                </figure>
+              </li>
+              <li>
+                <strong>Extract the downloaded archive, open the extracted folder, and launch Stele:</strong>
+                <div class="platform-guides">
+                  <div class="guide-os" data-os="macos">
+                    <span class="detected-label">Detected device</span>
+                    <h4>macOS</h4>
+                    <p>Double-click <code>Stele Desktop.app</code>.</p>
+                  </div>
+                  <div class="guide-os" data-os="windows">
+                    <span class="detected-label">Detected device</span>
+                    <h4>Windows</h4>
+                    <p>Double-click <code>Stele Desktop.exe</code>.</p>
+                  </div>
+                  <div class="guide-os" data-os="linux">
+                    <span class="detected-label">Detected device</span>
+                    <h4>Linux</h4>
+                    <p>Open a terminal in the extracted <code>Stele</code> folder and run
+                      <code>bash run.sh</code>.</p>
+                  </div>
+                </div>
+              </li>
+            </ol>
+            <p class="security-note">
+              <strong>Security notice:</strong> because Stele is distributed independently, your operating
+              system or antivirus software may ask you to confirm that you trust and want to open it.
+              Continue only when the package was downloaded from the official Stele GitHub release page.
+            </p>
             <p class="guide-note">
-              ✓ No command line needed (except Linux). No Python to install by hand.
-              First run: ~10–20 seconds (local Python environment setup).
-              Your data: <code>~/Library/Application Support/Stele Desktop/</code> (macOS) · 
-              <code>%APPDATA%\Stele Desktop\</code> (Windows) · 
-              <code>~/.local/share/stele-desktop/</code> (Linux).
+              No manual Python installation is required. Project data are stored outside the application
+              folder, so replacing the application does not overwrite an existing project.
             </p>
           </div>
         </div>
@@ -156,6 +189,34 @@
           <tr><th>Internet connection</th><td>Only to load the page</td><td>Only for place geocoding</td></tr>
         </tbody>
       </table>
+    </section>
+
+    <!-- PRESENTATION ---------------------------------------------------- -->
+    <section class="presentation" id="presentation">
+      <div class="presentation-head">
+        <div>
+          <p class="eyebrow">Presentation · 19 slides</p>
+          <h2>Relational databases for epigraphy</h2>
+          <p>Explore the conceptual model behind Stele: entities and relations, archaeological
+             context, physical supports and fragments, text versions, annotations, semantic
+             networks and cross-text analysis.</p>
+        </div>
+        <div class="presentation-actions">
+          <a class="btn primary" href="assets/presentation/stele-relational-databases-for-epigraphy.pdf"
+             target="_blank" rel="noopener">Open presentation online ↗</a>
+          <a class="btn" href="assets/presentation/stele-relational-databases-for-epigraphy.pdf" download>Download PDF</a>
+          <a class="btn" href="assets/presentation/stele-relational-databases-for-epigraphy.pptx" download>Download PowerPoint</a>
+        </div>
+      </div>
+      <div class="presentation-frame">
+        <iframe src="assets/presentation/stele-relational-databases-for-epigraphy.pdf#view=FitH"
+                title="Stele presentation: relational databases for epigraphy"
+                loading="lazy"></iframe>
+      </div>
+      <p class="presentation-fallback">
+        If the embedded viewer is unavailable, use <a href="assets/presentation/stele-relational-databases-for-epigraphy.pdf"
+        target="_blank" rel="noopener">Open presentation online</a> or download the PowerPoint file.
+      </p>
     </section>
 
     <!-- FONDAZIONI TECNICHE --------------------------------------------- -->
@@ -209,14 +270,12 @@
       const btn = document.getElementById('dlPrimary');
       if (btn) btn.textContent = 'Download for ' + map[os];
       
-      // Highlight the matching OS link.
-      document.querySelectorAll('[data-os]').forEach(a => {
+      // Highlight the matching OS download link and launch instructions.
+      document.querySelectorAll('.dl-alts a[data-os]').forEach(a => {
         if (a.dataset.os === os) a.style.fontWeight = '700';
       });
-      
-      // Show instructions for the detected OS only.
-      document.querySelectorAll('.guide-os').forEach(div => {
-        div.style.display = (div.dataset.os === os) ? 'block' : 'none';
+      document.querySelectorAll('.guide-os[data-os]').forEach(div => {
+        div.classList.toggle('current-os', div.dataset.os === os);
       });
     })();
   </script>

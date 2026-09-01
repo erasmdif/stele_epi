@@ -1,102 +1,14 @@
 {% extends "base.html" %}
-{% block heading %}Texts{% endblock %}
+{% block heading %}Testi{% endblock %}
 {% block content %}
-<style>
-  .group-panel { margin-bottom: 18px; }
-  .group-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px;
-                  background: #eef4f4; border: 1px solid #b8d0d0; border-radius: 6px 6px 0 0;
-                  border-bottom: none; }
-  .group-header .icon { color: #1f545c; font-size: 18px; }
-  .group-header .title { font-weight: 600; color: #1f545c; font-size: 15px; flex: 1; }
-  .group-header .badge { background: #2a6f7a; color: #fff; font-size: 11px;
-                        padding: 2px 8px; border-radius: 10px; }
-  .group-body { border: 1px solid #b8d0d0; border-top: none; border-radius: 0 0 6px 6px;
-                background: #fbfcfc; }
-  .group-body table { margin: 0; }
-  .frag-badge { background: #d4eeee; color: #1f545c; padding: 1px 6px; border-radius: 3px;
-                font-size: 11px; margin-left: 6px; font-family: monospace; }
-</style>
-
-{% if groups %}
-<div class="panel">
-  <div class="head">
-    <h2>Objects reconstructed from fragments</h2>
-    <span class="muted">{{ groups|length }} object(s)</span>
-  </div>
-  <div class="body" style="padding:12px">
-    {% for g in groups %}
-    <div class="group-panel">
-      <div class="group-header">
-        <span class="icon">◆</span>
-        <span class="title">{{ g.parent_label }}</span>
-        <span class="badge">{{ g.fragments|length }} inscribed fragments</span>
-        <a class="btn" href="{{ url_for('web.reconstructed_view', obj_id=g.parent_id) }}">
-          Reconstructed text →
-        </a>
-      </div>
-      <div class="group-body">
-        <table>
-          <thead>
-            <tr><th>Fragment</th><th>Siglum</th><th>Title</th>
-                <th>Language</th><th>Versions</th><th></th></tr>
-          </thead>
-          <tbody>
-            {% for d in g.fragments %}
-            <tr>
-              <td><span class="frag-badge">#{{ d._sequence or '?' }}</span> {{ d.object_label }}</td>
-              <td class="mono">{{ d.siglum or '—' }}</td>
-              <td>{{ d.title or '—' }}</td>
-              <td>{{ d.main_language or '—' }}</td>
-              <td>{{ d.n_versions }}</td>
-              <td>
-                <a class="btn" href="{{ url_for('web.annotate', doc_id=d.id) }}">
-                  Annotate fragment →
-                </a>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-</div>
-{% endif %}
-
-<div class="panel" style="margin-top:18px">
-  <div class="head">
-    <h2>Documents on complete objects</h2>
-    <span class="muted">{{ docs|length }}</span>
-  </div>
-  <div class="body" style="padding:0">
-    <table>
-      <thead>
-        <tr><th>Siglum</th><th>Title</th><th>Object</th>
-            <th>Type</th><th>Language</th><th>Versions</th><th></th></tr>
-      </thead>
-      <tbody>
-        {% for d in docs %}
-        <tr>
-          <td class="mono">{{ d.siglum or '—' }}</td>
-          <td>{{ d.title or '—' }}</td>
-          <td>{{ d.object_label or '—' }}</td>
-          <td>
-            {% if d.object_kind == 'physical_object' %}
-              <span class="chip">complete</span>
-            {% elif d.object_kind == 'reconstructed_object' %}
-              <span class="chip">reconstructed</span>
-            {% elif d.object_kind == 'fragment' %}
-              <span class="chip">fragment</span>
-            {% else %}—{% endif %}
-          </td>
-          <td>{{ d.main_language or '—' }}</td>
-          <td>{{ d.n_versions }}</td>
-          <td><a class="btn" href="{{ url_for('web.annotate', doc_id=d.id) }}">Annotate →</a></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
+<div class="panel"><div class="head"><h2>Documenti di testo</h2><span class="muted">{{ docs|length }}</span></div>
+<div class="body" style="padding:0"><table>
+  <thead><tr><th>Sigla</th><th>Titolo</th><th>Oggetto</th><th>Lingua</th><th>Versioni</th><th></th></tr></thead>
+  <tbody>
+  {% for d in docs %}
+    <tr><td class="mono">{{ d.siglum or '—' }}</td><td>{{ d.title or '—' }}</td>
+    <td>{{ d.object_label or '—' }}</td><td>{{ d.main_language or '—' }}</td><td>{{ d.n_versions }}</td>
+    <td><a class="btn" href="{{ url_for('web.annotate', doc_id=d.id) }}">Annota →</a></td></tr>
+  {% endfor %}
+  </tbody></table></div></div>
 {% endblock %}

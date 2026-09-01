@@ -20,7 +20,7 @@ def _lang_of(version):
 def export_text_version(conn, version_id):
     v = models.get_text_version(conn, version_id)
     if not v:
-        raise ValueError("Text version not found.")
+        raise ValueError("text_version inesistente")
     doc = conn.execute("SELECT * FROM text_document WHERE id=?", (v["text_document_id"],)).fetchone()
     doc = dict(doc) if doc else {}
     anns = models.annotations_for_version(conn, version_id)
@@ -29,7 +29,7 @@ def export_text_version(conn, version_id):
     L = ['<?xml version="1.0" encoding="UTF-8"?>']
     L.append('<TEI xmlns="http://www.tei-c.org/ns/1.0" xml:lang=%s>' % quoteattr(_lang_of(v)))
     L.append("  <teiHeader><fileDesc>")
-    L.append("    <titleStmt><title>%s</title></titleStmt>" % escape(doc.get("title") or "Text"))
+    L.append("    <titleStmt><title>%s</title></titleStmt>" % escape(doc.get("title") or "Testo"))
     L.append("    <publicationStmt><p>Esportato da Stele DBMS.</p></publicationStmt>")
     L.append("    <sourceDesc><p>%s</p></sourceDesc>" % escape(doc.get("description") or "nato digitale"))
     L.append("  </fileDesc></teiHeader>")

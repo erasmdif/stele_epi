@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block heading %}Vocabularies{% endblock %}
+{% block heading %}Vocabolari{% endblock %}
 {% block content %}
 <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
   {% for table, v in vocabs.items() %}
@@ -23,7 +23,7 @@
   </div></div>
   {% endfor %}
 </div>
-<p class="muted" style="margin-top:10px">Select a term to view its hierarchy and ancestors, calculated with a recursive CTE.</p>
+<p class="muted" style="margin-top:10px">Clicca un termine per vedere la sua gerarchia (antenati) calcolata via CTE ricorsiva.</p>
 {% endblock %}
 {% block scripts %}
 <script>
@@ -32,7 +32,7 @@ document.querySelectorAll('.term-line').forEach(el=>el.addEventListener('click',
   if(box.textContent){box.textContent='';return;}
   const r=await fetch(`/api/vocab/${t}/${id}/lineage`);const d=await r.json();
   const anc=(d.ancestors||[]).map(a=>'→ '+a.preferred_label).join(' ');
-  box.textContent=anc?('  '+anc):'  (no ancestors)';
+  box.textContent=anc?('  '+anc):'  (nessun antenato)';
 }));
 </script>
 {% endblock %}

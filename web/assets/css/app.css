@@ -165,7 +165,7 @@ input[type=text]:focus, select:focus, textarea:focus {
 .reader .seg.ann:hover { background-color: rgba(42,111,122,.10); }
 .reader .seg.hl { background-color: rgba(181,86,31,.16) !important; }
 .reader.empty { display: flex; align-items: center; }
-.reader.empty::before { content: "The annotated text will appear here."; color: var(--ink-soft); font-family: var(--ui); font-size: 14px; }
+.reader.empty::before { content: "Il testo annotato apparirà qui."; color: var(--ink-soft); font-family: var(--ui); font-size: 14px; }
 
 /* --- Lista annotazioni ----------------------------------------------------*/
 .ann-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }

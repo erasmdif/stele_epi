@@ -12,7 +12,7 @@ Your data remains under your control. The web edition stores its working session
 ```text
 stele_epi/
 ├── index.html          GitHub Pages landing page
-├── assets/             Landing-page assets
+├── assets/             Landing assets, release guide, PDF and PowerPoint presentation
 ├── web/                Static browser edition
 ├── desktop/            Flask + SQLite/GeoPackage desktop edition
 ├── .github/workflows/  CI, Pages, and release automation
@@ -22,6 +22,8 @@ stele_epi/
 ## Web edition
 
 The web edition is a dependency-free, stand-off text annotator written in vanilla JavaScript. It supports overlapping annotations, Linear B input, place annotations and maps, JSON round trips, and TEI-like XML import/export. GitHub Pages publishes it automatically from `main`.
+
+The landing page also embeds the 19-slide presentation **Relational databases for epigraphy** as a browser-viewable PDF and offers both PDF and PowerPoint downloads.
 
 ## Desktop edition
 

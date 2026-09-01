@@ -13,7 +13,6 @@ desktop/MyEpigraphicProject/
 *.gpkg
 *.sqlite
 *.sqlite3
-!desktop/stele_app/data/demo_project.gpkg
 
 # Node (per la web)
 web/node_modules/

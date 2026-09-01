@@ -1,50 +1,50 @@
 {% extends "base.html" %}
-{% block heading %}{{ o.label or o.inventory_number or 'object' }} — {{ o.record_kind }}{% endblock %}
+{% block heading %}{{ o.label or o.inventory_number or 'oggetto' }} — {{ o.record_kind }}{% endblock %}
 {% block content %}
-<div class="crumb"><a href="{{ url_for('web.objects') }}">Objects</a> / {{ o.label or o.inventory_number or ('#' ~ o.id) }}</div>
+<div class="crumb"><a href="{{ url_for('web.objects') }}">Oggetti</a> / {{ o.label or o.inventory_number or ('#' ~ o.id) }}</div>
 
 <div class="two" style="margin-top:12px">
   <!-- SX: profilo + editing -->
   <div class="panel">
-    <div class="head"><h2>Object profile</h2><span class="spacer"></span>
-      <button class="btn mini primary" id="btnSave">Save</button></div>
+    <div class="head"><h2>Profilo oggetto</h2><span class="spacer"></span>
+      <button class="btn mini primary" id="btnSave">Salva</button></div>
     <div class="body">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <label style="font-size:11px;color:var(--ink-soft)">Inventory no.
+        <label style="font-size:11px;color:var(--ink-soft)">Inventario
           <input id="fInventoryNumber" class="mono" value="{{ o.inventory_number or '' }}"
                  style="width:100%;font-family:var(--mono);padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px"></label>
-        <label style="font-size:11px;color:var(--ink-soft)">Label
+        <label style="font-size:11px;color:var(--ink-soft)">Etichetta
           <input id="fLabel" value="{{ o.label or '' }}"
                  style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px"></label>
       </div>
-      <p class="eyebrow" style="margin-top:10px">Description</p>
+      <p class="eyebrow" style="margin-top:10px">Descrizione</p>
       <textarea id="fDescription" style="width:100%;min-height:60px;font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">{{ o.description or '' }}</textarea>
-      <p class="eyebrow" style="margin-top:10px">Condition</p>
+      <p class="eyebrow" style="margin-top:10px">Stato di conservazione</p>
       <textarea id="fConditionNote" style="width:100%;min-height:45px;font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">{{ o.condition_note or '' }}</textarea>
       {% if o.completeness_percentage is not none %}
-      <p class="eyebrow" style="margin-top:10px">Completeness</p>
+      <p class="eyebrow" style="margin-top:10px">Completezza</p>
       <div class="progress"><div class="fill" style="width:{{ o.completeness_percentage }}%"></div></div>
       <span class="muted" style="font-size:12px">{{ o.completeness_percentage|int }}%</span>
       {% endif %}
 
-      <p class="eyebrow" style="margin-top:14px">Decoration</p>
+      <p class="eyebrow" style="margin-top:14px">Decorazione</p>
       <label style="font-size:13px;display:flex;align-items:center;gap:6px">
-        <input type="checkbox" id="fDecorationPresent" {{ 'checked' if o.decoration_present else '' }}> decoration present
+        <input type="checkbox" id="fDecorationPresent" {{ 'checked' if o.decoration_present else '' }}> presenza di decorazione
       </label>
-      <textarea id="fDecorationNote" placeholder="for example: geometric incision; horizontal band; spiral motif"
+      <textarea id="fDecorationNote" placeholder="es. Incisione geometrica; fascia orizzontale; motivo a spirale"
                 style="width:100%;min-height:45px;margin-top:5px;font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">{{ o.decoration_note or '' }}</textarea>
 
-      <p class="eyebrow" style="margin-top:14px">Restoration history</p>
+      <p class="eyebrow" style="margin-top:14px">Storia di restauro</p>
       <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center">
-        <label style="font-size:13px"><input type="checkbox" id="fRestored" {{ 'checked' if o.restored else '' }}> restored</label>
-        <input id="fRestorationDate" value="{{ o.restoration_date or '' }}" placeholder="for example: 1980s; 1992; after 1990"
+        <label style="font-size:13px"><input type="checkbox" id="fRestored" {{ 'checked' if o.restored else '' }}> restaurato</label>
+        <input id="fRestorationDate" value="{{ o.restoration_date or '' }}" placeholder="es. anni '80; 1992; post 1990"
                style="font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px">
       </div>
-      <textarea id="fRestorationNote" placeholder="for example: reassembled from four fragments with plaster fills"
+      <textarea id="fRestorationNote" placeholder="es. ricomposizione da 4 frammenti con integrazioni in gesso"
                 style="width:100%;min-height:45px;margin-top:5px;font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">{{ o.restoration_note or '' }}</textarea>
 
       {% if o.measurements %}
-      <p class="eyebrow" style="margin-top:14px">Measurements</p>
+      <p class="eyebrow" style="margin-top:14px">Misure</p>
       <table>
         {% for m in o.measurements %}
         <tr><td>{{ m.measurement_type }}</td><td class="mono">{{ m.value }} {{ m.unit }}</td>
@@ -58,15 +58,15 @@
   <!-- DX: tipologia + cronologia + composizione + contesti + testi + bibliografia -->
   <div style="display:flex;flex-direction:column;gap:16px">
 
-    <div class="panel"><div class="head"><h2>Type and characterisation</h2></div>
+    <div class="panel"><div class="head"><h2>Tipologia e caratterizzazione</h2></div>
       <div class="body">
         {% if o.inferred_types %}
-        <p class="eyebrow">Inferred types</p>
+        <p class="eyebrow">Tipi inferiti</p>
         <div style="font-size:12px">
           {% for it in o.inferred_types %}<span class="tag" style="margin:2px">{{ it }}</span>{% endfor %}
         </div>
         {% endif %}
-        <p class="eyebrow" style="margin-top:10px">Assigned terms ({{ o.terms|length }})</p>
+        <p class="eyebrow" style="margin-top:10px">Termini assegnati ({{ o.terms|length }})</p>
         <div id="termsList">
           {% for t in o.terms %}
           <div class="row-line" data-aid="{{ t.id }}">
@@ -75,42 +75,42 @@
             {% if t.certainty %}<span class="muted" style="font-size:11px">{{ t.certainty }}</span>{% endif %}
           </div>
           {% else %}
-          <div class="muted" style="font-size:13px">No assigned terms.</div>
+          <div class="muted" style="font-size:13px">Nessun termine assegnato.</div>
           {% endfor %}
         </div>
         <div id="addTermBox" style="margin-top:8px">
-          <button class="btn mini primary" id="btnAddTerm">＋ assign term…</button>
+          <button class="btn mini primary" id="btnAddTerm">＋ assegna termine…</button>
         </div>
       </div>
     </div>
 
-    <div class="panel"><div class="head"><h2>Chronology</h2></div>
+    <div class="panel"><div class="head"><h2>Cronologia</h2></div>
       <div class="body">
         <div id="chronoBar"></div>
         <div id="chronoList" style="margin-top:10px"></div>
         <div id="addDatingBox" style="margin-top:10px">
-          <button class="btn mini primary" id="btnAddDating">＋ add dating…</button>
+          <button class="btn mini primary" id="btnAddDating">＋ aggiungi datazione…</button>
         </div>
       </div>
     </div>
 
     {% if o.components %}
-    <div class="panel"><div class="head"><h2>Composition</h2></div><div class="body">
+    <div class="panel"><div class="head"><h2>Composizione</h2></div><div class="body">
       {% for c in o.components %}
         <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line)">
           <a href="{{ url_for('web.object_detail', obj_id=c.id) }}"><b>{{ c.label or c.inventory_number or ('#' ~ c.id) }}</b></a>
-          <span class="muted">{% if c.completeness_percentage is not none %}coverage {{ c.completeness_percentage|int }}%{% endif %}</span>
+          <span class="muted">{% if c.completeness_percentage is not none %}copertura {{ c.completeness_percentage|int }}%{% endif %}</span>
         </div>
       {% endfor %}
     </div></div>
     {% endif %}
 
     {% if o.relations %}
-    <div class="panel"><div class="head"><h2>Scholarly relations</h2></div><div class="body">
+    <div class="panel"><div class="head"><h2>Relazioni scientifiche</h2></div><div class="body">
       {% for r in o.relations %}
         <div style="padding:6px 0;border-bottom:1px solid var(--line)">
           <span class="pill" style="color:var(--accent-ink);border-color:var(--accent);background:#eef4f4">{{ r.rel }}</span>
-          with <a href="{{ url_for('web.object_detail', obj_id=r.other_id) }}">{{ r.other_label }}</a>
+          con <a href="{{ url_for('web.object_detail', obj_id=r.other_id) }}">{{ r.other_label }}</a>
           <span class="tag">{{ r.status }}</span>
           {% if r.rationale %}<div class="muted" style="font-size:13px;margin-top:3px">{{ r.rationale }}</div>{% endif %}
         </div>
@@ -119,7 +119,7 @@
     {% endif %}
 
     {% if o.contexts %}
-    <div class="panel"><div class="head"><h2>Context</h2></div><div class="body">
+    <div class="panel"><div class="head"><h2>Contesto</h2></div><div class="body">
       {% for c in o.contexts %}
         <div><a href="{{ url_for('web.context_detail', ctx_id=c.id) }}">{{ c.code or ('#' ~ c.id) }}</a> — {{ c.name or '' }}
         <span class="tag">{{ c.relation_role }}</span></div>
@@ -128,7 +128,7 @@
     {% endif %}
 
     {% if o.texts %}
-    <div class="panel"><div class="head"><h2>Texts</h2></div><div class="body">
+    <div class="panel"><div class="head"><h2>Testi</h2></div><div class="body">
       {% for t in o.texts %}
         <div><a href="{{ url_for('web.annotate', doc_id=t.id) }}">{{ t.siglum or t.title }}</a>
         <span class="muted">{{ t.main_language }} · {{ t.script }}</span></div>
@@ -137,7 +137,7 @@
     {% endif %}
 
     {% if o.bibliography %}
-    <div class="panel"><div class="head"><h2>Bibliography ({{ o.bibliography|length }})</h2></div>
+    <div class="panel"><div class="head"><h2>Bibliografia ({{ o.bibliography|length }})</h2></div>
       <div class="body">
         {% for b in o.bibliography %}
         <div class="row-line">

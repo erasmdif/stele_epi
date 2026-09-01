@@ -1,132 +1,132 @@
 {
   "schema": "1.0",
   "meta": {
-    "title": "Example: place names and categories",
+    "title": "Esempio: toponimi e categorie",
     "author": "Stele",
     "script": "linear-b",
-    "description": "Fictional, AI-generated mock-up created solely to demonstrate Stele. It is not a scholarly edition or evidence source. Place names, annotations and readings are illustrative only.",
-    "created": "2026-09-01T20:37:40.543Z",
-    "modified": "2026-09-01T20:37:40.543Z"
+    "description": "Documento dimostrativo: toponimi micenei geolocalizzati, annotazioni per categoria (lessico, persona, luogo, cronologia, nota) e sovrapposizioni sulla stessa porzione. Le letture di r. 5–7 sono puramente illustrative.",
+    "created": "2026-08-29T09:21:10.747Z",
+    "modified": "2026-08-29T09:21:10.747Z"
   },
-  "text": "𐀒𐀜𐀰   𐀞𐀂𐀵   𐀀𐀖𐀛𐀰\nko-no-so   pa-i-to   a-mi-ni-so\nKnossos, Phaistos, Amnisos — three centres on the island.\n\n𐀁𐀩𐀯𐀋   3   𐀥𐀩\ne-re-si-ja   3   qe-re\nEresija; 3 units; uncertain word.",
+  "text": "𐀒𐀜𐀰   𐀞𐀂𐀵   𐀀𐀖𐀛𐀰\nko-no-so   pa-i-to   a-mi-ni-so\nCnosso, Festo, Amniso — tre centri dell’isola.\n\n𐀁𐀩𐀯𐀋   3   𐀥𐀩\ne-re-si-ja   3   qe-re\nEresija; 3 (unità); (parola incerta).",
   "annotations": [
     {
-      "id": "amtj4pfsvj2dng",
+      "id": "amte67wikjiq73",
       "start": 27,
       "end": 35,
       "type": "place",
       "category": "luogo",
-      "note": "Main palatial centre and home of the Linear B archive.",
+      "note": "Centro palaziale principale; sede dell’archivio in Lineare B.",
       "tags": [
-        "place name"
+        "toponimo"
       ],
       "color": "#2a6f9a",
       "place": {
-        "name": "Knossos",
+        "name": "Cnosso (Knossos)",
         "lat": 35.298,
         "lon": 25.163,
         "source": "manual",
-        "detail": "archaeological site"
+        "detail": "sito archeologico"
       }
     },
     {
-      "id": "amtj4pfsvn0n6j",
+      "id": "amte67wiknjr2x",
       "start": 38,
       "end": 45,
       "type": "place",
       "category": "luogo",
-      "note": "Second centre on the island, in the Mesara plain.",
+      "note": "Secondo centro dell’isola, sulla piana della Messarà.",
       "tags": [
-        "place name"
+        "toponimo"
       ],
       "color": "#2a6f9a",
       "place": {
-        "name": "Phaistos",
+        "name": "Festo (Phaistos)",
         "lat": 35.0517,
         "lon": 24.8144,
         "source": "manual",
-        "detail": "archaeological site"
+        "detail": "sito archeologico"
       }
     },
     {
-      "id": "amtj4pfsv4kem4",
+      "id": "amte67wikhzs4q",
       "start": 48,
       "end": 58,
       "type": "place",
       "category": "luogo",
-      "note": "Port of Knossos.",
+      "note": "Porto di Cnosso.",
       "tags": [
-        "place name",
-        "port"
+        "toponimo",
+        "porto"
       ],
       "color": "#2a6f9a",
       "place": {
-        "name": "Amnisos",
+        "name": "Amniso (Amnisos)",
         "lat": 35.3339,
         "lon": 25.1897,
         "source": "manual",
-        "detail": "port"
+        "detail": "porto"
       }
     },
     {
-      "id": "amtj4pfsvxtyk7",
+      "id": "amte67wikmn0hf",
       "start": 27,
       "end": 29,
       "type": "note",
       "category": "lessico",
-      "note": "Syllabogram ko (*70).",
+      "note": "Sillabogramma ko (*70).",
       "tags": [
-        "sign"
+        "segno"
       ],
       "color": "#2f7d5b",
       "place": null
     },
     {
-      "id": "amtj4pfsvsb7q8",
+      "id": "amte67wikuuyci",
       "start": 33,
       "end": 35,
       "type": "note",
       "category": "lessico",
-      "note": "Syllabogram so (*12).",
+      "note": "Sillabogramma so (*12).",
       "tags": [
-        "sign"
+        "segno"
       ],
       "color": "#2f7d5b",
       "place": null
     },
     {
-      "id": "amtj4pfsvugst7",
-      "start": 138,
-      "end": 148,
+      "id": "amte67wikh03g4",
+      "start": 127,
+      "end": 137,
       "type": "note",
       "category": "persona",
-      "note": "Personal name; illustrative reading.",
+      "note": "Antroponimo (lettura illustrativa).",
       "tags": [
-        "name"
+        "nome"
       ],
       "color": "#7a4fb0",
       "place": null
     },
     {
-      "id": "amtj4pfsvqwiju",
-      "start": 129,
-      "end": 130,
+      "id": "amte67wikyxhyl",
+      "start": 118,
+      "end": 119,
       "type": "note",
       "category": "cronologia",
-      "note": "Numeric quantity: 3 units.",
+      "note": "Quantità numerica: 3 unità.",
       "tags": [
-        "number"
+        "numero"
       ],
       "color": "#c07b1f",
       "place": null
     },
     {
-      "id": "amtj4pfsv48rwe",
+      "id": "amte67wiko49k7",
       "start": 59,
-      "end": 85,
+      "end": 80,
       "type": "note",
       "category": "nota",
-      "note": "Translation summary of the three place names on the first line.",
+      "note": "Sintesi in traduzione dei tre toponimi della prima riga.",
       "tags": [],
       "color": "#6b6559",
       "place": null

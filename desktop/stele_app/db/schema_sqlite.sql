@@ -197,7 +197,6 @@ CREATE TABLE object_relation (
   asserted_by      INTEGER REFERENCES app_user(id) ON DELETE SET NULL,
   status           TEXT NOT NULL DEFAULT 'proposed' CHECK (status IN ('accepted','proposed','rejected','superseded')),
   notes            TEXT,
-  sequence         INTEGER,
   created_at       TEXT NOT NULL,
   CHECK (source_object_id <> target_object_id)
 ) STRICT;
@@ -244,43 +243,11 @@ CREATE TABLE object_term_assignment (
   UNIQUE (object_id, term_id)
 ) STRICT;
 
--- ---------- WORK (opera intellettuale astratta) ---------------------------
--- Un "work" (FRBR/CIDOC-CRM: F1 Work) è un'entità testuale astratta di cui più
--- text_document possono essere testimoni: es. un editto imperiale attestato su
--- più stele, un'opera letteraria in più manoscritti, un'iscrizione votiva
--- standard replicata in più copie. text_document.work_id è opzionale: la
--- maggior parte delle iscrizioni non ha un work astratto sopra.
-CREATE TABLE work (
-  id                 INTEGER PRIMARY KEY,
-  uid                TEXT NOT NULL UNIQUE,
-  title              TEXT NOT NULL,           -- titolo canonico dell'opera
-  author             TEXT,                    -- autore/emittente (se noto)
-  work_type          TEXT,                    -- 'edict', 'senatus_consultum',
-                                              -- 'literary_work', 'formula',
-                                              -- 'liturgical_text', ecc.
-  canonical_dating   TEXT,                    -- datazione compositiva (testo libero)
-  composition_from   INTEGER,                 -- range compositivo (anno)
-  composition_to     INTEGER,
-  language           TEXT,                    -- lingua dell'opera
-  description        TEXT,
-  bibliography       TEXT,                    -- riferimenti canonici
-  notes              TEXT,
-  is_active          INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0,1)),
-  created_at         TEXT NOT NULL,
-  updated_at         TEXT NOT NULL
-) STRICT;
-
-CREATE INDEX idx_work_title      ON work(title);
-CREATE INDEX idx_work_type       ON work(work_type);
-
 -- ---------- TEXT ------------------------------------------------------------
 CREATE TABLE text_document (
   id                 INTEGER PRIMARY KEY,
   uid                TEXT NOT NULL UNIQUE,
   object_id          INTEGER REFERENCES object(id) ON DELETE SET NULL,
-  work_id            INTEGER REFERENCES work(id) ON DELETE SET NULL,
-  witness_siglum     TEXT,                    -- sigla di questo testimone
-                                              -- (es. 'A', 'B', 'β' nella recensio)
   siglum             TEXT,
   title              TEXT,
   surface            TEXT,
@@ -294,8 +261,6 @@ CREATE TABLE text_document (
   created_at         TEXT NOT NULL,
   updated_at         TEXT NOT NULL
 ) STRICT;
-
-CREATE INDEX idx_text_document_work ON text_document(work_id);
 
 CREATE TABLE text_version (
   id                  INTEGER PRIMARY KEY,

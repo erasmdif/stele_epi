@@ -1,55 +1,55 @@
 {% extends "base.html" %}
-{% block heading %}{{ ctx.code or '#' ~ ctx.id }} — {{ ctx.name or 'context' }}{% endblock %}
+{% block heading %}{{ ctx.code or '#' ~ ctx.id }} — {{ ctx.name or 'contesto' }}{% endblock %}
 {% block head %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 {% endblock %}
 {% block content %}
-<div class="crumb"><a href="{{ url_for('web.contexts') }}">Contexts</a> / {{ ctx.code or ('#' ~ ctx.id) }}</div>
+<div class="crumb"><a href="{{ url_for('web.contexts') }}">Contesti</a> / {{ ctx.code or ('#' ~ ctx.id) }}</div>
 
 <div class="two" style="margin-top:12px">
   <!-- COLONNA SX: identità + campi archeologici -->
   <div class="panel">
-    <div class="head"><h2>Identity and excavation</h2><span class="spacer"></span>
-      <button class="btn mini primary" id="btnSave">Save</button></div>
+    <div class="head"><h2>Identità e scavo</h2><span class="spacer"></span>
+      <button class="btn mini primary" id="btnSave">Salva</button></div>
     <div class="body">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <label style="font-size:11px;color:var(--ink-soft)">Code
+        <label style="font-size:11px;color:var(--ink-soft)">Codice
           <input id="fCode" value="{{ ctx.code or '' }}" class="mono" style="width:100%;font-family:var(--mono);padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px"></label>
-        <label style="font-size:11px;color:var(--ink-soft)">Name
+        <label style="font-size:11px;color:var(--ink-soft)">Nome
           <input id="fName" value="{{ ctx.name or '' }}" style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px"></label>
       </div>
 
-      <p class="eyebrow" style="margin-top:12px">Description</p>
+      <p class="eyebrow" style="margin-top:12px">Descrizione</p>
       <textarea id="fDescription" style="width:100%;min-height:60px;font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">{{ ctx.description or '' }}</textarea>
 
-      <p class="eyebrow" style="margin-top:14px">Archaeological detail</p>
+      <p class="eyebrow" style="margin-top:14px">Profondità archeologica</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <label style="font-size:11px;color:var(--ink-soft)">Deposit type
+        <label style="font-size:11px;color:var(--ink-soft)">Tipo di deposito
           <select id="fDepositType" style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px">
-            <option value="">— not specified —</option>
+            <option value="">— non specificato —</option>
             {% for dt in ['fill','floor','burial','cut','structure','midden','abandonment','surface','other'] %}
               <option value="{{ dt }}" {{ 'selected' if ctx.deposit_type == dt else '' }}>{{ dt }}</option>
             {% endfor %}
           </select>
         </label>
-        <label style="font-size:11px;color:var(--ink-soft)">Excavation technique
+        <label style="font-size:11px;color:var(--ink-soft)">Tecnica di scavo
           <select id="fExcavationTechnique" style="width:100%;font:inherit;padding:5px 8px;border:1px solid var(--line-strong);border-radius:5px">
-            <option value="">— not specified —</option>
+            <option value="">— non specificata —</option>
             {% for et in ['stratigraphic','arbitrary','mixed','surface','test_pit','other'] %}
               <option value="{{ et }}" {{ 'selected' if ctx.excavation_technique == et else '' }}>{{ et }}</option>
             {% endfor %}
           </select>
         </label>
       </div>
-      <p class="eyebrow" style="margin-top:10px">Excavation method note</p>
-      <textarea id="fExcavationMethodNote" placeholder="for example: stratigraphic excavation; 2 mm sieve; photogrammetric recording"
+      <p class="eyebrow" style="margin-top:10px">Nota sul metodo di scavo</p>
+      <textarea id="fExcavationMethodNote" placeholder="es. scavo per strati; setaccio 2 mm; documentazione fotogrammetrica"
                 style="width:100%;min-height:45px;font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">{{ ctx.excavation_method_note or '' }}</textarea>
-      <p class="eyebrow" style="margin-top:10px">Preservation state</p>
-      <textarea id="fPreservationNote" placeholder="for example: good; partial erosion of upper layers"
+      <p class="eyebrow" style="margin-top:10px">Stato di conservazione</p>
+      <textarea id="fPreservationNote" placeholder="es. buono; parziale erosione superiore"
                 style="width:100%;min-height:45px;font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">{{ ctx.preservation_note or '' }}</textarea>
 
       {% if ctx.point %}
-      <p class="eyebrow" style="margin-top:14px">Geometry</p>
+      <p class="eyebrow" style="margin-top:14px">Geometria</p>
       <div class="muted mono" style="font-size:12px">◎ {{ '%.4f'|format(ctx.point.lat) }}, {{ '%.4f'|format(ctx.point.lon) }}
         <span class="tag">{{ ctx.geometry_precision or 'approximate' }}</span></div>
       <div id="ctxMap" style="height:180px;margin-top:6px;border-radius:6px;border:1px solid var(--line)"></div>
@@ -61,61 +61,61 @@
   <div style="display:flex;flex-direction:column;gap:16px">
 
     <!-- termini assegnati con relazioni risalite -->
-    <div class="panel"><div class="head"><h2>Types and characterisation</h2></div>
+    <div class="panel"><div class="head"><h2>Tipi e caratterizzazione</h2></div>
       <div class="body">
         {% if ctx.inferred_types %}
-        <p class="eyebrow">Inferred type</p>
+        <p class="eyebrow">Tipologia inferita</p>
         <div style="font-size:12px">
           {% for it in ctx.inferred_types %}<span class="tag" style="margin:2px">{{ it }}</span>{% endfor %}
         </div>
         {% endif %}
-        <p class="eyebrow" style="margin-top:10px">Assigned terms ({{ ctx.terms|length }})</p>
+        <p class="eyebrow" style="margin-top:10px">Termini assegnati ({{ ctx.terms|length }})</p>
         <div id="termsList">
           {% for t in ctx.terms %}
           <div class="row-line" data-aid="{{ t.assignment_id }}">
             <a href="{{ url_for('web.generic_term_page', table='context_term', term_id=t.id) }}">{{ t.preferred_label }}</a>
             <span class="tag">{{ t.term_type }}</span>
             {% if t.certainty %}<span class="muted" style="font-size:11px">{{ t.certainty }}</span>{% endif %}
-            <button class="rm" title="Remove assignment">×</button>
+            <button class="rm" title="Rimuovi assegnazione">×</button>
           </div>
           {% else %}
-          <div class="muted" style="font-size:13px">No assigned terms. Use the picker below to characterise this context.</div>
+          <div class="muted" style="font-size:13px">Nessun termine assegnato — usa il picker qui sotto per caratterizzare il contesto.</div>
           {% endfor %}
         </div>
         <div id="addTermBox" style="margin-top:8px">
-          <button class="btn mini primary" id="btnAddTerm">＋ assign term…</button>
+          <button class="btn mini primary" id="btnAddTerm">＋ assegna termine…</button>
         </div>
       </div>
     </div>
 
     <!-- CRONOLOGIA con barra temporale visuale -->
-    <div class="panel"><div class="head"><h2>Chronology</h2></div>
+    <div class="panel"><div class="head"><h2>Cronologia</h2></div>
       <div class="body">
         <div id="chronoBar"></div>
         <div id="chronoList" style="margin-top:10px"></div>
         <div id="addDatingBox" style="margin-top:10px">
-          <button class="btn mini primary" id="btnAddDating">＋ add dating…</button>
+          <button class="btn mini primary" id="btnAddDating">＋ aggiungi datazione…</button>
         </div>
       </div>
     </div>
 
     <!-- oggetti trovati -->
-    <div class="panel"><div class="head"><h2>Recovered objects ({{ ctx.objects|length }})</h2></div>
+    <div class="panel"><div class="head"><h2>Oggetti trovati ({{ ctx.objects|length }})</h2></div>
       <div class="body" style="padding:0"><table>
-        <thead><tr><th>Inventory no.</th><th>Label</th><th>Role</th></tr></thead>
+        <thead><tr><th>Inventario</th><th>Etichetta</th><th>Ruolo</th></tr></thead>
         <tbody>
           {% for o in ctx.objects %}
           <tr><td class="mono"><a href="{{ url_for('web.object_detail', obj_id=o.id) }}">{{ o.inventory_number or '#' ~ o.id }}</a></td>
               <td>{{ o.label or '' }}</td>
               <td class="muted">{{ o.relation_role or '' }}</td></tr>
           {% else %}
-          <tr><td colspan="3" class="muted">No linked objects.</td></tr>
+          <tr><td colspan="3" class="muted">Nessun oggetto collegato.</td></tr>
           {% endfor %}
         </tbody></table></div></div>
 
     <!-- bibliografia -->
     {% if ctx.bibliography %}
-    <div class="panel"><div class="head"><h2>Bibliography ({{ ctx.bibliography|length }})</h2></div>
+    <div class="panel"><div class="head"><h2>Bibliografia ({{ ctx.bibliography|length }})</h2></div>
       <div class="body">
         {% for b in ctx.bibliography %}
         <div class="row-line">

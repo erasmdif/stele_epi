@@ -1,51 +1,51 @@
 {% extends "base.html" %}
-{% block heading %}Annotate · {{ doc.siglum or doc.title }}{% endblock %}
+{% block heading %}Annota · {{ doc.siglum or doc.title }}{% endblock %}
 {% block head %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 {% endblock %}
 {% block content %}
-<div class="crumb"><a href="{{ url_for('web.texts') }}">Texts</a> / {{ doc.siglum or doc.title }}</div>
+<div class="crumb"><a href="{{ url_for('web.texts') }}">Testi</a> / {{ doc.siglum or doc.title }}</div>
 
 {% if version %}
 <div id="dictSearch" class="searchbar" style="position:relative">
   <span>⌕</span>
-  <input placeholder="Search the project dictionary (Cmd/Ctrl + K)…">
+  <input placeholder="Cerca nel dizionario del progetto (Cmd/Ctrl + K)…">
   <kbd>⌘K</kbd>
   <div class="res"></div>
 </div>
 {% endif %}
 
 {% if not version %}
-  <div class="panel" style="margin-top:12px"><div class="body muted">This document has no text versions.</div></div>
+  <div class="panel" style="margin-top:12px"><div class="body muted">Questo documento non ha versioni testuali.</div></div>
 {% else %}
 <div class="annotate-grid" style="margin-top:12px">
   <div class="panel panel-scroll" style="grid-area:txt">
-    <div class="head"><h2>Text structure</h2><span class="spacer"></span>
-      <button class="btn mini" id="btnEditText">✎ Edit text</button>
-      <button class="btn mini" id="btnNewParallel" title="Add a parallel version, such as a translation or transcription">+ version</button>
+    <div class="head"><h2>Struttura del testo</h2><span class="spacer"></span>
+      <button class="btn mini" id="btnEditText">✎ Modifica testo</button>
+      <button class="btn mini" id="btnNewParallel" title="Aggiungi una versione parallela (traduzione, trascrizione…)">+ versione</button>
     </div>
     <div class="body body-scroll">
       <div id="versionTabs" class="version-tabs"></div>
-      <div id="parallelReader" class="parallel-reader">Loading…</div>
+      <div id="parallelReader" class="parallel-reader">Caricamento…</div>
       <div class="statbar muted mono" id="statbar" style="margin-top:8px;font-size:12px"></div>
     </div>
   </div>
 
   <div class="panel panel-scroll" style="grid-area:ann">
-    <div class="head"><h2>Annotations</h2><span class="spacer"></span>
+    <div class="head"><h2>Annotazioni</h2><span class="spacer"></span>
       <span class="muted" id="annCount"></span></div>
     <div class="body body-scroll"><div class="ann-list" id="annList"></div></div>
   </div>
 
   <div class="panel" style="grid-area:map">
-    <div class="head"><h2>Linked places</h2></div>
+    <div class="head"><h2>Luoghi collegati</h2></div>
     <div class="body"><div id="map"></div>
-      <div class="muted" id="mapEmpty" hidden>No geolocated places.</div></div>
+      <div class="muted" id="mapEmpty" hidden>Nessun luogo geolocalizzato.</div></div>
   </div>
 
   <div class="panel" style="grid-area:tei">
-    <div class="head"><h2>TEI / XML preview</h2><span class="spacer"></span>
-      <a class="btn mini" href="{{ url_for('api.version_tei', version_id=version.id) }}" target="_blank">Open TEI</a></div>
+    <div class="head"><h2>Anteprima TEI / XML</h2><span class="spacer"></span>
+      <a class="btn mini" href="{{ url_for('api.version_tei', version_id=version.id) }}" target="_blank">Apri TEI</a></div>
     <div class="body"><pre class="xml" id="xmlOut">…</pre></div>
   </div>
 </div>
@@ -53,20 +53,20 @@
 <!-- Modale modifica testo -> nuova versione -->
 <div class="modal-back" id="editModal">
   <div class="modal">
-    <div class="m-head"><h3>Edit text → new version</h3><span class="spacer"></span>
+    <div class="m-head"><h3>Modifica testo → nuova versione</h3><span class="spacer"></span>
       <button class="btn ghost" id="editClose">✕</button></div>
     <div class="m-body">
-      <p class="muted" style="margin-top:0;font-size:13px">Annotated versions are immutable. Saving creates a
-        <b>new version</b>. Annotations that can be remapped are migrated automatically; those crossing
-        the edited region remain on the previous version and are reported.</p>
+      <p class="muted" style="margin-top:0;font-size:13px">Le versioni annotate sono immutabili: salvando crei una
+        <b>nuova versione</b>. Le annotazioni remappabili vengono migrate automaticamente;
+        quelle che attraversano il punto di modifica restano sulla versione precedente e vengono segnalate.</p>
       <textarea id="editText" spellcheck="false" style="width:100%;min-height:220px;font-family:var(--lb);font-size:17px;line-height:1.9;white-space:pre;overflow:auto;padding:10px;border:1px solid var(--line-strong);border-radius:6px"></textarea>
       <div style="display:flex;gap:10px;align-items:center;margin-top:10px">
-        <label style="font-size:13px"><input type="checkbox" id="editMigrate" checked> migrate annotations</label>
-        <input id="editNote" placeholder="version note (optional)" style="flex:1;font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">
+        <label style="font-size:13px"><input type="checkbox" id="editMigrate" checked> migra le annotazioni</label>
+        <input id="editNote" placeholder="nota di versione (facoltativa)" style="flex:1;font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">
       </div>
     </div>
-    <div class="m-foot"><button class="btn ghost" id="editCancel">Cancel</button>
-      <button class="btn primary" id="editSave">Save as new version</button></div>
+    <div class="m-foot"><button class="btn ghost" id="editCancel">Annulla</button>
+      <button class="btn primary" id="editSave">Salva come nuova versione</button></div>
   </div>
 </div>
 
@@ -78,14 +78,14 @@
 <!-- Modale nuova versione parallela -->
 <div class="modal-back" id="newParallelModal">
   <div class="modal">
-    <div class="m-head"><h3>Add a parallel version</h3><span class="spacer"></span>
+    <div class="m-head"><h3>Aggiungi una versione parallela</h3><span class="spacer"></span>
       <button class="btn ghost" id="npClose">✕</button></div>
     <div class="m-body">
-      <p class="muted" style="margin-top:0;font-size:13px">The primary diplomatic version remains annotatable.
-        This new version is a <b>parallel reading</b>: transliteration, translation, normalised transcription or commentary.
-        Line-by-line alignment is automatic when the number of lines matches.</p>
+      <p class="muted" style="margin-top:0;font-size:13px">La versione primaria (diplomatica) resta annotabile.
+        Questa nuova versione sarà una <b>lettura parallela</b>: traslitterazione, traduzione, trascrizione normalizzata, commento…
+        L'allineamento riga↔riga è automatico se il numero di righe corrisponde.</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <label style="font-size:12px;color:var(--ink-soft)">Version type
+        <label style="font-size:12px;color:var(--ink-soft)">Tipo di versione
           <select id="npType" style="width:100%;font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">
             <option value="transliteration">transliteration</option>
             <option value="normalized_transcription">normalized_transcription</option>
@@ -96,19 +96,19 @@
             <option value="other">other</option>
           </select>
         </label>
-        <label style="font-size:12px;color:var(--ink-soft)">Language (BCP-47)
-          <input id="npLang" placeholder="for example: en, grc, la" style="width:100%;font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">
+        <label style="font-size:12px;color:var(--ink-soft)">Lingua (BCP-47)
+          <input id="npLang" placeholder="es. it, en, grc, la" style="width:100%;font:inherit;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">
         </label>
       </div>
-      <label style="font-size:12px;color:var(--ink-soft)">Content (one line for each primary-version line to align automatically)</label>
+      <label style="font-size:12px;color:var(--ink-soft)">Contenuto (una riga per riga della primaria per allineamento automatico)</label>
       <textarea id="npContent" spellcheck="false" style="width:100%;min-height:180px;font-family:var(--display);font-size:15px;line-height:1.7;padding:10px;border:1px solid var(--line-strong);border-radius:6px"></textarea>
       <div style="display:flex;gap:10px;align-items:center;margin-top:10px">
-        <label style="font-size:13px"><input type="checkbox" id="npAlign" checked> automatic line-by-line alignment</label>
-        <input id="npNote" placeholder="note (optional)" style="flex:1;font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">
+        <label style="font-size:13px"><input type="checkbox" id="npAlign" checked> allineamento automatico riga↔riga</label>
+        <input id="npNote" placeholder="nota (facoltativa)" style="flex:1;font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">
       </div>
     </div>
-    <div class="m-foot"><button class="btn ghost" id="npCancel">Cancel</button>
-      <button class="btn primary" id="npSave">Create parallel version</button></div>
+    <div class="m-foot"><button class="btn ghost" id="npCancel">Annulla</button>
+      <button class="btn primary" id="npSave">Crea versione parallela</button></div>
   </div>
 </div>
 

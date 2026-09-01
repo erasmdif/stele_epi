@@ -20,14 +20,14 @@ const qere = S.qe + S.re;               // qe-re
 const lines = [
   konoso + '   ' + paito + '   ' + aminiso,                 // 1  Lineare B
   'ko-no-so   pa-i-to   a-mi-ni-so',                        // 2  traslitterazione
-  'Knossos, Phaistos, Amnisos — three centres on the island.', // 3 translation
+  'Cnosso, Festo, Amniso — tre centri dell\u2019isola.',    // 3  traduzione
   '',                                                       // 4
   eresija + '   3   ' + qere,                               // 5  Lineare B
   'e-re-si-ja   3   qe-re',                                 // 6  traslitterazione
-  'Eresija; 3 units; uncertain word.'                       // 7 translation
+  'Eresija; 3 (unit\u00e0); (parola incerta).'              // 7  traduzione
 ];
 const text = lines.join('\n');
-const at = (sub, from) => { const s = text.indexOf(sub, from || 0); if (s < 0) throw new Error('not found: ' + sub); return [s, s + sub.length]; };
+const at = (sub, from) => { const s = text.indexOf(sub, from || 0); if (s < 0) throw new Error('non trovato: ' + sub); return [s, s + sub.length]; };
 const mk = (span, cat, note, extra) => Object.assign({ id: TA.uid(), start: span[0], end: span[1], category: cat, note: note || '', tags: [] }, extra || {});
 
 // Traslitterazioni (riga 2)
@@ -42,27 +42,27 @@ const tre = at(' 3 '); const treSpan = [tre[0] + 1, tre[1] - 1]; // "3" senza sp
 
 const d = TA.newDoc();
 d.text = text;
-d.meta.title = 'Example: place names and categories';
+d.meta.title = 'Esempio: toponimi e categorie';
 d.meta.author = 'Stele';
 d.meta.script = 'linear-b';
-d.meta.description = 'Fictional, AI-generated mock-up created solely to demonstrate Stele. It is not a scholarly edition or evidence source. Place names, annotations and readings are illustrative only.';
+d.meta.description = 'Documento dimostrativo: toponimi micenei geolocalizzati, annotazioni per categoria (lessico, persona, luogo, cronologia, nota) e sovrapposizioni sulla stessa porzione. Le letture di r. 5–7 sono puramente illustrative.';
 
 d.annotations = [
   // Luoghi (geolocalizzati) sulla traslitterazione
-  mk(koNoSo, 'luogo', 'Main palatial centre and home of the Linear B archive.', { place: { name: 'Knossos', lat: 35.2980, lon: 25.1630, source: 'manual', detail: 'archaeological site' }, tags: ['place name'] }),
-  mk(paiTo, 'luogo', 'Second centre on the island, in the Mesara plain.', { place: { name: 'Phaistos', lat: 35.0517, lon: 24.8144, source: 'manual', detail: 'archaeological site' }, tags: ['place name'] }),
-  mk(amiNiso, 'luogo', 'Port of Knossos.', { place: { name: 'Amnisos', lat: 35.3339, lon: 25.1897, source: 'manual', detail: 'port' }, tags: ['place name', 'port'] }),
+  mk(koNoSo, 'luogo', 'Centro palaziale principale; sede dell\u2019archivio in Lineare B.', { place: { name: 'Cnosso (Knossos)', lat: 35.2980, lon: 25.1630, source: 'manual', detail: 'sito archeologico' }, tags: ['toponimo'] }),
+  mk(paiTo, 'luogo', 'Secondo centro dell\u2019isola, sulla piana della Messar\u00e0.', { place: { name: 'Festo (Phaistos)', lat: 35.0517, lon: 24.8144, source: 'manual', detail: 'sito archeologico' }, tags: ['toponimo'] }),
+  mk(amiNiso, 'luogo', 'Porto di Cnosso.', { place: { name: 'Amniso (Amnisos)', lat: 35.3339, lon: 25.1897, source: 'manual', detail: 'porto' }, tags: ['toponimo', 'porto'] }),
   // Sovrapposizioni su ko-no-so: due sillabogrammi (lessico) dentro il toponimo (luogo)
-  mk(koOnly, 'lessico', 'Syllabogram ko (*70).', { tags: ['sign'] }),
-  mk(soOnly, 'lessico', 'Syllabogram so (*12).', { tags: ['sign'] }),
+  mk(koOnly, 'lessico', 'Sillabogramma ko (*70).', { tags: ['segno'] }),
+  mk(soOnly, 'lessico', 'Sillabogramma so (*12).', { tags: ['segno'] }),
   // Persona e cronologia (riga 6) — illustrativi
-  mk(eresijaT, 'persona', 'Personal name; illustrative reading.', { tags: ['name'] }),
-  mk(treSpan, 'cronologia', 'Numeric quantity: 3 units.', { tags: ['number'] }),
+  mk(eresijaT, 'persona', 'Antroponimo (lettura illustrativa).', { tags: ['nome'] }),
+  mk(treSpan, 'cronologia', 'Quantit\u00e0 numerica: 3 unit\u00e0.', { tags: ['numero'] }),
   // Nota generale sull'intera riga 3 (traduzione)
-  mk(at('Knossos, Phaistos, Amnisos'), 'nota', 'Translation summary of the three place names on the first line.')
+  mk(at('Cnosso, Festo, Amniso'), 'nota', 'Sintesi in traduzione dei tre toponimi della prima riga.')
 ];
 
 fs.writeFileSync('sample/example.json', JSON.stringify(TA.normalizeDoc(d), null, 2));
 fs.writeFileSync('sample/example.tei.xml', TA.toTEI(TA.normalizeDoc(d)));
 const s = TA.docStats(TA.normalizeDoc(d));
-console.log('Sample written. Lines', s.righe, 'Tokens', s.token, 'Annotations', s.annotazioni, 'Notes', s.note, 'Places', s.luoghi);
+console.log('Scritto sample. Righe', s.righe, 'Token', s.token, 'Annotazioni', s.annotazioni, 'Note', s.note, 'Luoghi', s.luoghi);

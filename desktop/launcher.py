@@ -76,7 +76,7 @@ def _pip_install():
     req = HERE / "requirements.txt"
     if not req.exists():
         return
-    print("[launcher] Installing dependencies with pip; this may take a minute…", flush=True)
+    print(f"[launcher] Installo le dipendenze via pip (potrebbe richiedere un minuto)…", flush=True)
     cmd = [sys.executable, "-m", "pip", "install", "--user",
            "--disable-pip-version-check", "-q", "-r", str(req)]
     subprocess.check_call(cmd)
@@ -87,9 +87,9 @@ def _uv_install():
     Usa il python di sistema per bootstrap se non c'è ancora un venv."""
     venv = HERE / ".venv"
     if not venv.exists():
-        print("[launcher] Preparing the Python environment with uv…", flush=True)
+        print(f"[launcher] Preparo l'ambiente Python (via uv)…", flush=True)
         subprocess.check_call(["uv", "venv", str(venv)])
-    print("[launcher] Installing dependencies…", flush=True)
+    print(f"[launcher] Installo le dipendenze…", flush=True)
     subprocess.check_call(["uv", "pip", "install",
                             "--python", str(venv / ("Scripts" if sys.platform == "win32" else "bin") / "python"),
                             "-r", str(HERE / "requirements.txt")])
@@ -106,7 +106,7 @@ def ensure_deps():
         try:
             _uv_install()
         except Exception as e:
-            print(f"[launcher] uv failed ({e}); trying pip.", flush=True)
+            print(f"[launcher] uv fallito ({e}), provo con pip.", flush=True)
             _pip_install()
     else:
         _pip_install()
@@ -115,8 +115,8 @@ def ensure_deps():
         import flask  # noqa
     except ImportError:
         raise SystemExit(
-            "[launcher] Flask could not be installed. "
-            "Try installing it manually: pip install -r requirements.txt")
+            "[launcher] Impossibile installare Flask. "
+            "Prova a installare a mano: pip install -r requirements.txt")
 
 
 # ---------------------------------------------------------------------------
@@ -130,7 +130,7 @@ def find_free_port(start: int = DEFAULT_PORT_START, max_tries: int = 200) -> int
                 return port
             except OSError:
                 continue
-    raise RuntimeError(f"No free port between {start} and {start + max_tries}.")
+    raise RuntimeError(f"Nessuna porta libera fra {start} e {start + max_tries}.")
 
 
 def wait_for_server(port: int, timeout: float = 20.0) -> bool:
@@ -152,17 +152,17 @@ def wait_for_server(port: int, timeout: float = 20.0) -> bool:
 # ---------------------------------------------------------------------------
 def parse_args():
     p = argparse.ArgumentParser(prog="stele-desktop",
-                                 description=f"Start {APP_NAME}.")
+                                 description=f"Avvia {APP_NAME}.")
     p.add_argument("--port", type=int, default=None,
-                   help="Port to use; default is the first free port from 5000.")
+                   help="Porta da usare (default: prima libera da 5000).")
     p.add_argument("--no-browser", action="store_true",
-                   help="Do not open the browser automatically.")
+                   help="Non aprire il browser automaticamente.")
     p.add_argument("--data-dir", type=Path, default=None,
-                   help="Data directory; default is the standard OS location.")
+                   help="Cartella dati (default: percorso standard OS).")
     p.add_argument("--reset-demo", action="store_true",
-                   help="Delete and recreate the sample project.")
+                   help="Cancella e ricrea il progetto demo.")
     p.add_argument("--host", default="127.0.0.1",
-                   help="Bind host; default is 127.0.0.1.")
+                   help="Host di bind (default: 127.0.0.1).")
     return p.parse_args()
 
 
@@ -180,7 +180,7 @@ def main():
     # reset opzionale
     if args.reset_demo and db_path.exists():
         db_path.unlink()
-        print(f"[launcher] Sample project deleted: {db_path}", flush=True)
+        print(f"[launcher] Progetto demo eliminato: {db_path}", flush=True)
 
     # 3. env per l'app Flask
     os.environ["STELE_PROJECT_DB"] = str(db_path)
@@ -194,14 +194,14 @@ def main():
     try:
         from stele_app import create_app  # type: ignore
     except Exception as e:
-        raise SystemExit(f"[launcher] Could not import stele_app: {e}")
+        raise SystemExit(f"[launcher] Impossibile importare stele_app: {e}")
 
     app = create_app(str(db_path))
 
     # inizializzazione del progetto (crea demo al primo avvio)
     from stele_app.db import project as project_mod
     if not db_path.exists():
-        print(f"[launcher] First run: creating the sample project at\n           {db_path}", flush=True)
+        print(f"[launcher] Primo avvio: creo il progetto demo in\n           {db_path}", flush=True)
         project_mod.create_project(str(db_path), with_demo=True, overwrite=False)
 
     url = f"http://{args.host}:{port}/"
@@ -209,9 +209,9 @@ def main():
     print(f"\n┌{bar}┐", flush=True)
     print(f"│  {APP_NAME}", flush=True)
     print(f"│  URL:  {url}", flush=True)
-    print(f"│  Data: {db_path}", flush=True)
+    print(f"│  Dati: {db_path}", flush=True)
     print(f"└{bar}┘", flush=True)
-    print("\nPress Ctrl+C in this window to stop Stele Desktop.\n", flush=True)
+    print("\nPremi Ctrl+C in questa finestra per fermare Stele Desktop.\n", flush=True)
 
     def _run():
         # use_reloader=False è essenziale in un launcher (altrimenti fork doppio)
@@ -221,7 +221,7 @@ def main():
     t.start()
 
     if not wait_for_server(port):
-        raise SystemExit("[launcher] The local server did not respond in time.")
+        raise SystemExit("[launcher] Il server non ha risposto in tempo utile.")
 
     if not args.no_browser:
         webbrowser.open(url)
@@ -231,7 +231,7 @@ def main():
         while t.is_alive():
             t.join(timeout=1.0)
     except KeyboardInterrupt:
-        print(f"\n[launcher] Stopping {APP_NAME}.", flush=True)
+        print(f"\n[launcher] Fermo {APP_NAME}. A presto.", flush=True)
         sys.exit(0)
 
 

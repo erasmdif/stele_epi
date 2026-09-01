@@ -48,7 +48,7 @@ def run():
     # 3. geometria point round-trip
     blob = one("SELECT geometry FROM context LIMIT 1")[0]
     pt = geopackage.decode_point(blob)
-    ok("geometria point decodificabile", pt is not None and abs(pt[1] - 41.8647) < 1e-2)
+    ok("geometria point decodificabile", pt is not None and abs(pt[1] - 38.322) < 1e-3)
 
     # 4. CTE ricorsiva (Minerva -> Classical pantheon a profondità 2)
     mid = one("SELECT id FROM text_term WHERE preferred_label='Minerva'")[0]
@@ -58,9 +58,9 @@ def run():
     ok("CTE: Classical pantheon a profondità 2", labels.get("Classical pantheon") == 2)
 
     # 5. tipologia oggetto inferita
-    tab = one("SELECT id FROM object WHERE label LIKE 'Funerary stele%' AND record_kind='physical_object' LIMIT 1")[0]
+    tab = one("SELECT id FROM object WHERE label='TAB001'")[0]
     o = models.get_object(c, tab)
-    ok("oggetto: terms include Stele", len(o["terms"]) >= 1 and any(t["preferred_label"] == "Stele" for t in o["terms"]))
+    ok("oggetto: tipi inferiti includono Ceramic support", "Ceramic support" in o["inferred_types"])
 
     # 6. annotazioni sovrapposte + discontinue
     vid = one("SELECT id FROM text_version WHERE version_type='diplomatic_transcription'")[0]
@@ -153,7 +153,7 @@ def run():
     ok("TEI: contiene stand-off spanGrp", "<spanGrp" in xml and "#char=" in xml)
 
     # 15. FTS5 trova un token della traduzione
-    hits = models.fulltext_search(c, "Cornelius")
+    hits = models.fulltext_search(c, "Aikereu")
     ok("FTS5: ricerca full-text funzionante", len(hits) >= 1)
 
     print("\n%d pass, %d fail" % (PASS["n"], FAIL["n"]))

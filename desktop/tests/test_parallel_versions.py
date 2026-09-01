@@ -31,7 +31,7 @@ def run():
                     (doc_id,)).fetchall()
     types = [r["version_type"] for r in vs]
     ok("3 versioni parallele nel seed",
-       set(types) == {"diplomatic_transcription", "translation", "normalized"})
+       set(types) == {"diplomatic_transcription", "translation", "transliteration"})
 
     # 2. parallel-view: primaria è diplomatic_transcription
     v = c.get(f"/api/documents/{doc_id}/parallel-view").get_json()
@@ -48,10 +48,10 @@ def run():
     #    riga 1 della diplomatica ha 3 annotazioni; riga 2 nessuna
     row1 = v["rows"][0]
     parallels1 = [x for x in row1["cells"] if not x["is_primary_version"]]
-    ok("parallele di riga 1 hanno ann_count coerente", all(p["ann_count"] >= 0 for p in parallels1))
+    ok("parallele di riga 1 marcate con ann_count=3", all(p["ann_count"] == 3 for p in parallels1))
     row2 = v["rows"][1]
     parallels2 = [x for x in row2["cells"] if not x["is_primary_version"]]
-    ok("parallele di riga 2 hanno ann_count coerente", all(p["ann_count"] >= 0 for p in parallels2))
+    ok("parallele di riga 2 marcate con ann_count=0", all(p["ann_count"] == 0 for p in parallels2))
 
     # 5. filtro attivo: se richiedo solo diplomatica
     v_only = c.get(f"/api/documents/{doc_id}/parallel-view?types=diplomatic_transcription").get_json()
@@ -59,14 +59,14 @@ def run():
        all(len(row["cells"]) == 1 for row in v_only["rows"]))
 
     # 6. crea versione parallela via API
-    commentary = "\n".join(f"Line {i} comment." for i in range(1, len(v["rows"]) + 1))
     r = c.post(f"/api/documents/{doc_id}/parallel-versions",
                json={"version_type": "commentary", "language": "en",
-                     "content": commentary, "auto_align": True})
+                     "content": "Line one comment.\nLine two comment.",
+                     "auto_align": True})
     ok("POST parallel-version 201", r.status_code == 201)
     v2 = c.get(f"/api/documents/{doc_id}/parallel-view").get_json()
     ok("nuova versione compare in active", "commentary" in v2["active"])
-    ok("nuova versione allineata alle righe",
+    ok("nuova versione allineata alle 2 righe",
        all(any(cell["version_type"] == "commentary" for cell in row["cells"]) for row in v2["rows"]))
 
     # 7. auto-align idempotente (non crea duplicati)

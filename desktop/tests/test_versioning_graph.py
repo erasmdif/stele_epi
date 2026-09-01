@@ -77,14 +77,10 @@ def run():
        {"Minerva", "Roman deity", "Classical pantheon"} <= labels)
     ok("grafo: focus marcato", any(n["is_focus"] and n["label"] == "Minerva" for n in g["nodes"]))
     ok("grafo: archi tipizzati con etichetta", all("label" in e and "kind" in e for e in g["edges"]))
-    # co-occorrenza: prendo un qualsiasi termine 'person' con almeno un'annotazione
-    aik_row = db.execute("""SELECT tt.id FROM text_term tt
-        JOIN annotation_term at2 ON at2.term_id=tt.id
-        WHERE tt.term_type='person' LIMIT 1""").fetchone()
-    if aik_row:
-        aik = aik_row["id"]
-        g2 = c.get(f"/api/graph?focus={aik}&depth=1&kinds=relation,cooccur").get_json()
-        ok("grafo: co-occorrenze nel testo", any(e["kind"] == "cooccur" for e in g2["edges"]) or len(g2["edges"]) >= 0)
+    # co-occorrenza
+    aik = db.execute("SELECT id FROM text_term WHERE preferred_label='Aikereu'").fetchone()["id"]
+    g2 = c.get(f"/api/graph?focus={aik}&depth=1&kinds=relation,cooccur").get_json()
+    ok("grafo: co-occorrenze nel testo", any(e["kind"] == "cooccur" for e in g2["edges"]))
     st = c.get("/api/graph/stats").get_json()
     ok("grafo: stats coerenti", st["relations"] >= 4 and st["text_terms"] >= 10)
 

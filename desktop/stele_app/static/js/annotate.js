@@ -16,8 +16,8 @@
   const STATUSES = ['accepted', 'proposed', 'rejected', 'superseded'];
   const CERTS = [['', '—'], ['certain', 'Certain'], ['probable', 'Probable'], ['possible', 'Possible'], ['uncertain', 'Uncertain'], ['unknown', 'Unknown']];
   const TERM_TYPES = ['person', 'deity', 'place', 'institution', 'ethnonym', 'formula', 'abbreviation', 'concept', 'quantity', 'event', 'title', 'office', 'object_concept', 'other'];
-  const REL_LABELS = { IS_A: 'is a type of', PART_OF: 'is part of', ASSOCIATED_WITH: 'is associated with',
-    EQUIVALENT_TO: 'is equivalent to', DERIVED_FROM: 'is derived from', RELATED_TO: 'is related to' };
+  const REL_LABELS = { IS_A: 'è un tipo di', PART_OF: 'fa parte di', ASSOCIATED_WITH: 'associato a',
+    EQUIVALENT_TO: 'equivalente a', DERIVED_FROM: 'deriva da', RELATED_TO: 'collegato a' };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   let CP = [], ANNS = [], VERSION = null, RELTYPES = [], activeAi = null, teiTimer = null;
@@ -68,7 +68,7 @@
       this.close();
       const menu = document.createElement('div'); menu.className = 'term-menu';
       menu.style.position = 'absolute'; menu.style.top = 'calc(100% + 4px)'; menu.style.left = '0';
-      menu.innerHTML = `<input placeholder="${esc(opts.placeholder || 'search or type to create…')}">
+      menu.innerHTML = `<input placeholder="${esc(opts.placeholder || 'cerca o digita per creare…')}">
         <div class="res"></div>`;
       host.style.position = 'relative';
       host.appendChild(menu);
@@ -89,7 +89,7 @@
           if (!exact) {
             html += `<div class="primary-create" data-role="create">
               <span class="plus">＋</span>
-              <span>Create <b>“${esc(val)}”</b> as</span>
+              <span>Crea <b>«${esc(val)}»</b> come</span>
               <select>${TERM_TYPES.map(t => `<option ${t === defaultType ? 'selected' : ''}>${t}</option>`).join('')}</select>
             </div>`;
           }
@@ -98,7 +98,7 @@
           `<button data-id="${x.id}" data-type="${x.term_type}" data-label="${esc(x.preferred_label)}">
              ${esc(x.preferred_label)} <span class="tag">${x.term_type}</span>
            </button>`).join('');
-        if (!list.length && !val) html += '<div class="muted" style="font-size:12px;padding:4px">Type to search or create.</div>';
+        if (!list.length && !val) html += '<div class="muted" style="font-size:12px;padding:4px">Digita per cercare o creare.</div>';
         res.innerHTML = html;
 
         const createEl = res.querySelector('[data-role="create"]');
@@ -186,7 +186,7 @@
           <div class="p-cell parallel ${c.ann_count > 0 ? 'has-ann' : ''}">
             <div class="p-label"><span class="lang">${esc(c.language || '')}</span> ${esc(c.version_type)}</div>
             <div class="p-text">${esc(c.text || '')}</div>
-            ${c.ann_count > 0 ? `<span class="p-marker" title="${c.ann_count} annotation(s) on the corresponding line of the primary version">${c.ann_count}</span>` : ''}
+            ${c.ann_count > 0 ? `<span class="p-marker" title="${c.ann_count} annotazione/i sulla riga corrispondente della versione primaria">${c.ann_count}</span>` : ''}
           </div>`).join('');
       const n = 1 + row.cells.filter(c => !c.is_primary_version && ACTIVE_TYPES.has(c.version_type)).length;
       const html = `<div class="p-row" data-row="${ri}">
@@ -218,7 +218,7 @@
     const cp = Array.from(text);
     if (!local.length) {
       return `<div class="p-cell primary" data-vid="${cell ? cell.version_id : ''}" data-cpstart="${lineStart}">
-        <div class="p-label"><span class="lang">${esc(cell ? cell.language || '' : '')}</span> ${esc(cell ? cell.version_type : '')} <span class="tag" style="font-size:9px">primary — annotatable</span></div>
+        <div class="p-label"><span class="lang">${esc(cell ? cell.language || '' : '')}</span> ${esc(cell ? cell.version_type : '')} <span class="tag" style="font-size:9px">primaria — annotabile</span></div>
         <div class="p-text" data-cpstart="${lineStart}" style="--maxlane:${maxLane}">${esc(text) || '\u200b'}</div>
       </div>`;
     }
@@ -240,7 +240,7 @@
       pieces.push(`<span class="seg ann" data-cpstart="${lineStart + s}" data-ais="${ais}" style="background-image:${img};background-size:${size};background-position:${pos};background-repeat:no-repeat">${t}</span>`);
     }
     return `<div class="p-cell primary" data-vid="${cell.version_id}" data-cpstart="${lineStart}">
-      <div class="p-label"><span class="lang">${esc(cell.language || '')}</span> ${esc(cell.version_type)} <span class="tag" style="font-size:9px;background:#eef4f4;color:var(--accent-ink)">primary — annotatable</span></div>
+      <div class="p-label"><span class="lang">${esc(cell.language || '')}</span> ${esc(cell.version_type)} <span class="tag" style="font-size:9px;background:#eef4f4;color:var(--accent-ink)">primaria — annotabile</span></div>
       <div class="p-text" data-cpstart="${lineStart}" style="--maxlane:${maxLane}">${pieces.join('') || '\u200b'}</div>
     </div>`;
   }
@@ -254,10 +254,10 @@
       const isActive = ACTIVE_TYPES.has(v.version_type);
       const cls = 'tab' + (isPrim ? ' primary' : '') + (isActive ? ' active' : '');
       const check = isActive ? '✓' : '○';
-      return `<span class="${cls}" data-vtype="${v.version_type}" title="v${v.version_number}${v.is_current ? ' · current' : ''}${isPrim ? ' · primary (annotatable)' : ''}">
+      return `<span class="${cls}" data-vtype="${v.version_type}" title="v${v.version_number}${v.is_current ? ' · corrente' : ''}${isPrim ? ' · primaria (annotabile)' : ''}">
         ${isPrim ? '' : `<span>${check}</span>`} ${esc(v.version_type)}${v.language ? ` <span class="lang">(${esc(v.language)})</span>` : ''}
       </span>`;
-    }).join('') + `<span class="hint">annotate the primary version; others are parallel views</span>`;
+    }).join('') + `<span class="hint">annota sulla primaria; le altre sono viste parallele</span>`;
     tabs.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
       const vt = t.dataset.vtype;
       if (vt === PARALLEL.primary.version_type) return; // la primaria è sempre attiva
@@ -268,7 +268,7 @@
   function renderStats(nSpans) {
     const righe = CP.length ? CP.join('').split('\n').length : 0;
     const token = (CP.join('').match(/\S+/g) || []).length;
-    $('#statbar').textContent = `Lines: ${righe} · Tokens: ${token} · Annotations: ${ANNS.length} · Spans: ${nSpans}`;
+    $('#statbar').textContent = `Righe: ${righe} · Token: ${token} · Annotazioni: ${ANNS.length} · Span: ${nSpans}`;
   }
 
   /* ---------- selezione -> offset ---------- */
@@ -307,9 +307,9 @@
     selPop.className = 'sel-pop';
     selPop.innerHTML = `
       <span class="mono" style="font-size:11px;color:var(--ink-soft)">${esc(quoteOf(start, end).slice(0,20))} · ${refLabel(start, end)}</span>
-      <select title="annotation type">${ANN_TYPES.map(t => `<option value="${t}">${t}</option>`).join('')}</select>
-      <button class="btn primary mini" data-act="annot">＋ Annotate</button>
-      <button class="btn mini" data-act="annotWithTerm">＋ Annotate &amp; link term…</button>`;
+      <select title="tipo di annotazione">${ANN_TYPES.map(t => `<option value="${t}">${t}</option>`).join('')}</select>
+      <button class="btn primary mini" data-act="annot">＋ Annota</button>
+      <button class="btn mini" data-act="annotWithTerm">＋ Annota &amp; collega termine…</button>`;
     document.body.appendChild(selPop);
     selPop.style.top = (window.scrollY + rect.bottom + 6) + 'px';
     selPop.style.left = (window.scrollX + rect.left) + 'px';
@@ -322,7 +322,7 @@
       return created.id;
     }
     selPop.querySelector('[data-act="annot"]').addEventListener('click', async () => {
-      try { await createBare(); toast('Annotation created.', 'ok'); }
+      try { await createBare(); toast('Annotazione creata.', 'ok'); }
       catch (e) { toast(e.message, 'err'); }
     });
     selPop.querySelector('[data-act="annotWithTerm"]').addEventListener('click', async () => {
@@ -365,7 +365,7 @@
     if (!ANNS.length) {
       list.innerHTML = `<div class="muted" style="font-size:13px;padding:20px;text-align:center;border:1px dashed var(--line);border-radius:6px">
         <div style="font-size:22px">✎</div>
-        Select a text span to create the first annotation.</div>`; return;
+        Seleziona una porzione di testo per creare la prima annotazione.</div>`; return;
     }
     list.innerHTML = ANNS.map((a, ai) => {
       const sp = (a.spans || [])[0] || { start_position: 0, end_position: 0 };
@@ -373,9 +373,9 @@
       const spanInfo = (a.spans || []).map(s => refLabel(s.start_position, s.end_position)).join(' · ');
       const terms = (a.terms || []).map(t => `
         <span class="term-chip" data-term="${t.id}" data-type="${t.term_type}" style="border-color:${TYPE_COLOR[t.term_type]||'var(--line-strong)'}">
-          <a href="/vocabularies/${t.id}" style="color:inherit;text-decoration:none" title="Open dictionary record">${esc(t.preferred_label)}</a>
+          <a href="/vocabularies/${t.id}" style="color:inherit;text-decoration:none" title="Apri scheda-record">${esc(t.preferred_label)}</a>
           <span class="tag">${t.term_type}</span>
-          <button class="rm" title="Unlink">×</button>
+          <button class="rm" title="Scollega">×</button>
           <span class="lineage"></span>
         </span>`).join('');
       return `<div class="ann-item" data-ai="${ai}" data-id="${a.id}" style="border-left-color:${colorOf(a)}">
@@ -383,22 +383,22 @@
           <span class="q" style="font-family:var(--lb);font-size:16px">“${quote}”</span>
           <span class="spacer" style="flex:1"></span>
           <span class="ref">${spanInfo}</span>
-          <button class="kebab" data-act="del" title="Delete">×</button>
+          <button class="kebab" data-act="del" title="Elimina">×</button>
         </div>
         <div class="terms" style="margin-top:8px">${terms}
-          <span class="termbox"><button class="btn mini primary" data-act="addterm">＋ term</button></span>
+          <span class="termbox"><button class="btn mini primary" data-act="addterm">＋ termine</button></span>
         </div>
-        <textarea data-f="note" placeholder="Textual note (optional)…" style="margin-top:8px">${esc(a.note || '')}</textarea>
+        <textarea data-f="note" placeholder="Nota testuale (facoltativa)…" style="margin-top:8px">${esc(a.note || '')}</textarea>
         <details class="card-details">
-          <summary>Technical details (type, status, certainty and spans)</summary>
+          <summary>Dettagli tecnici (tipo, stato, certezza, span)</summary>
           <div class="ed-row" style="margin-top:6px">
-            <label style="font-size:11px;color:var(--ink-soft)">Type
+            <label style="font-size:11px;color:var(--ink-soft)">Tipo
               <select data-f="annotation_type">${ANN_TYPES.map(t => `<option ${t === a.annotation_type ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
-            <label style="font-size:11px;color:var(--ink-soft)">Status
+            <label style="font-size:11px;color:var(--ink-soft)">Stato
               <select data-f="status">${STATUSES.map(s => `<option ${s === a.status ? 'selected' : ''}>${s}</option>`).join('')}</select></label>
-            <label style="font-size:11px;color:var(--ink-soft)">Certainty
+            <label style="font-size:11px;color:var(--ink-soft)">Certezza
               <select data-f="certainty_code">${CERTS.map(c => `<option value="${c[0]}" ${a.certainty === c[1] ? 'selected' : ''}>${c[1]}</option>`).join('')}</select></label>
-            <button class="link-btn" data-act="addspan" title="Add the selection as another span for a discontinuous annotation">＋ span</button>
+            <button class="link-btn" data-act="addspan" title="Aggiungi la selezione come span (annotazione discontinua)">＋ span</button>
           </div>
         </details>
       </div>`;
@@ -413,22 +413,22 @@
       item.addEventListener('mouseleave', () => highlight(activeAi != null ? [String(activeAi)] : []));
       item.querySelectorAll('[data-f]').forEach(el => {
         el.addEventListener('change', async () => {
-          try { await api('PATCH', `/api/annotations/${id}`, { [el.dataset.f]: el.value }); refreshTei(); toast('Saved.', 'ok'); }
+          try { await api('PATCH', `/api/annotations/${id}`, { [el.dataset.f]: el.value }); refreshTei(); toast('Salvato.', 'ok'); }
           catch (e) { toast(e.message, 'err'); }
         });
       });
       item.querySelector('[data-act="del"]').addEventListener('click', async () => {
-        if (!confirm('Delete this annotation? Linked dictionary records will not be deleted.')) return;
-        try { await api('DELETE', `/api/annotations/${id}`); await reload(); toast('Deleted.', 'ok'); }
+        if (!confirm('Eliminare questa annotazione? Il record di dizionario collegato NON verrà cancellato.')) return;
+        try { await api('DELETE', `/api/annotations/${id}`); await reload(); toast('Eliminata.', 'ok'); }
         catch (e) { toast(e.message, 'err'); }
       });
       const addSpanBtn = item.querySelector('[data-act="addspan"]');
       if (addSpanBtn) addSpanBtn.addEventListener('click', async () => {
         const sel = pendingSelection();
-        if (!sel) { toast('Select a text span first.', 'warn'); return; }
+        if (!sel) { toast('Seleziona prima una porzione di testo.', 'warn'); return; }
         const spans = (a.spans || []).map(s => ({ start: s.start_position, end: s.end_position }));
         spans.push(sel);
-        try { await api('PUT', `/api/annotations/${id}/spans`, { spans }); await reload(); toast('Span added.', 'ok'); }
+        try { await api('PUT', `/api/annotations/${id}/spans`, { spans }); await reload(); toast('Span aggiunto.', 'ok'); }
         catch (e) { toast(e.message, 'err'); }
       });
       // ＋ termine: apre il TermPicker unificato
@@ -436,12 +436,12 @@
         e.stopPropagation();
         const box = e.currentTarget.parentElement;
         TermPicker.open(box, {
-          placeholder: 'search or create a term to link…',
+          placeholder: 'cerca o crea un termine da collegare…',
           defaultType: guessTypeFromAnnotation(a),
           onPick: async term => {
             await api('POST', `/api/annotations/${id}/terms`, { term_id: term.id, role: 'primary' });
             await reload();
-            toast(term.created ? `Record "${term.preferred_label}" created and linked.` : 'Term linked.', 'ok');
+            toast(term.created ? `Record "${term.preferred_label}" creato e collegato.` : 'Termine collegato.', 'ok');
           }
         });
       });
@@ -462,7 +462,7 @@
             const anc = (d.ancestors || []).map(x => '→ ' + x.preferred_label).join(' ');
             const neighOut = (d.neighbours || []).filter(n => n.dir === 'out' && n.rel !== 'IS_A' && n.rel !== 'PART_OF')
               .map(n => `${REL_LABELS[n.rel] || n.rel} ${n.other_label}`).join(' · ');
-            box.innerHTML = (anc ? esc(anc) : '<i>no hierarchy — open the record to build one</i>') +
+            box.innerHTML = (anc ? esc(anc) : '<i>nessuna gerarchia — apri la scheda per costruirla</i>') +
               (neighOut ? `<br>${esc(neighOut)}` : '');
           } catch (e) { toast(e.message, 'err'); }
         });
@@ -529,7 +529,7 @@
       idx = -1;
       res.innerHTML = items.slice(0, 20).map((x, i) =>
         `<button data-i="${i}"><b>${esc(x.preferred_label)}</b> <span class="tag">${x.term_type}</span></button>`).join('')
-        || '<div class="muted" style="padding:8px 12px;font-size:13px">no results — create a term from an annotation card</div>';
+        || '<div class="muted" style="padding:8px 12px;font-size:13px">nessun risultato — puoi crearlo dalla scheda di un\'annotazione</div>';
       bar.classList.add('open');
       res.querySelectorAll('button').forEach(b => b.addEventListener('click', () => location.href = '/vocabularies/' + items[+b.dataset.i].id));
     }
@@ -597,8 +597,8 @@
         const rep = await api('POST', `/api/text-versions/${VERSION}/revise`, {
           content, note: $('#editNote').value || null, migrate: $('#editMigrate').checked
         });
-        const msg = `New version created. Migrated annotations: ${rep.migrated}` +
-          (rep.skipped ? `, not migrated: ${rep.skipped}` : '');
+        const msg = `Nuova versione creata. Annotazioni migrate: ${rep.migrated}` +
+          (rep.skipped ? `, non migrate: ${rep.skipped}` : '');
         toast(msg, rep.skipped ? 'warn' : 'ok');
         setTimeout(() => { window.location = `/annotate/${window.STELE_DOC_ID}`; }, 700);
       } catch (e) { toast(e.message, 'err'); }
@@ -625,7 +625,7 @@
       };
       try {
         await api('POST', `/api/documents/${window.STELE_DOC_ID}/parallel-versions`, body);
-        toast('Parallel version created and aligned.', 'ok');
+        toast('Versione parallela creata e allineata.', 'ok');
         $('#newParallelModal').classList.remove('open');
         // resetta i campi
         ['#npContent', '#npNote', '#npLang'].forEach(s => { const el = $(s); if (el) el.value = ''; });

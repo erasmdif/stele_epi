@@ -109,7 +109,7 @@ def run():
                  f"/vocab/chronology_term/{ch}"]:
         r = c.get(path)
         ok(f"pagina {path} → 200", r.status_code == 200)
-        ok(f"pagina {path} contains 'Semantic network'", b"Semantic network" in r.data)
+        ok(f"pagina {path} contiene 'Rete semantica'", b"Rete semantica" in r.data)
 
     # search
     r = c.get("/api/vocab/context_term?q=mid").get_json()

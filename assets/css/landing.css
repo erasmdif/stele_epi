@@ -141,15 +141,32 @@ main { max-width: 1120px; margin: 0 auto; padding: 30px 24px 60px; }
 /* Install guide */
 .install-guide { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
 .guide-title { font-size: 12px; text-transform: uppercase; letter-spacing: .12em;
-  color: var(--accent-ink); font-weight: 600; margin-bottom: 10px; display: block; }
-.guide-steps { margin-bottom: 12px; }
-.guide-os { font-size: 13px; color: var(--ink); line-height: 1.5; margin-bottom: 8px; }
+  color: var(--accent-ink); font-weight: 600; margin-bottom: 12px; display: block; }
+.install-steps { margin: 0; padding-left: 22px; display: grid; gap: 18px; }
+.install-steps > li { padding-left: 4px; color: var(--ink-soft); font-size: 13px; }
+.install-steps > li::marker { color: var(--accent); font-weight: 700; }
+.install-steps > li > strong { color: var(--ink); }
+.release-shot { margin: 12px 0 0; }
+.release-shot img { display: block; width: 100%; height: auto; border: 1px solid var(--line);
+  border-radius: var(--radius); background: #fff; }
+.release-shot figcaption { margin-top: 6px; font-size: 11px; color: var(--ink-soft); }
+.platform-guides { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 10px; }
+.guide-os { position: relative; min-width: 0; padding: 10px; font-size: 12px; color: var(--ink);
+  line-height: 1.45; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
+.guide-os.current-os { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.guide-os h4 { margin: 0 0 5px; font-size: 13px; color: var(--accent-ink); }
 .guide-os p { margin: 0; }
 .guide-os code { font-size: .9em; background: var(--stone-2); padding: 2px 6px; border-radius: 3px; }
-.guide-os strong { color: var(--accent-ink); font-weight: 600; }
+.detected-label { display: none; float: right; margin-left: 6px; color: var(--accent-ink);
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.guide-os.current-os .detected-label { display: inline; }
+.security-note { margin: 16px 0 10px; padding: 10px 12px; background: #fff7e8;
+  border: 1px solid #ddc28b; border-left: 4px solid var(--gold,#b0872a);
+  border-radius: var(--radius); color: #684d18; font-size: 12px !important; }
 .guide-note { font-size: 11px; color: var(--ink-soft); line-height: 1.5; margin: 0;
   padding-top: 8px; border-top: 1px solid var(--stone-2); }
 .guide-note code { font-size: .85em; background: none; padding: 0; border-radius: 0; color: var(--ink-soft); }
+@media (max-width: 620px) { .platform-guides { grid-template-columns: 1fr; } }
 
 /* --- Compare table --- */
 .compare { margin-top: 50px; padding: 28px 30px; background: var(--paper);
@@ -160,6 +177,24 @@ main { max-width: 1120px; margin: 0 auto; padding: 30px 24px 60px; }
 .compare thead th { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--ink); }
 .compare tbody th { color: var(--ink-soft); font-weight: 500; width: 200px; }
 .compare tbody td { color: var(--ink); }
+
+/* --- Presentation --- */
+.presentation { margin-top: 40px; padding: 28px 30px; background: var(--paper);
+  border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+.presentation-head { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 24px;
+  align-items: end; margin-bottom: 20px; }
+.presentation h2 { font-size: 24px; margin-bottom: 8px; }
+.presentation-head p:not(.eyebrow) { max-width: 700px; color: var(--ink-soft); font-size: 14px; }
+.presentation-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.presentation-actions .btn { margin: 0; }
+.presentation-frame { overflow: hidden; aspect-ratio: 16 / 9; background: #fff;
+  border: 1px solid var(--line-strong); border-radius: var(--radius); }
+.presentation-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+.presentation-fallback { margin: 10px 0 0; color: var(--ink-soft); font-size: 12px; }
+@media (max-width: 820px) {
+  .presentation-head { grid-template-columns: 1fr; align-items: start; }
+  .presentation-actions { justify-content: flex-start; }
+}
 
 /* --- Tech grid --- */
 .tech { margin-top: 40px; padding: 28px 30px; background: transparent; }

@@ -1,42 +1,42 @@
 {% extends "base.html" %}
-{% block heading %}Explore relations{% endblock %}
+{% block heading %}Esplora relazioni{% endblock %}
 {% block content %}
 <div style="display:grid;grid-template-columns:250px 1fr 300px;gap:16px;height:calc(100vh - 150px)">
 
-  <!-- controls -->
-  <div class="panel"><div class="head"><h2>Explore</h2></div><div class="body">
-    <p class="eyebrow">Focus term</p>
-    <div class="termbox" style="display:block"><input id="focusSearch" placeholder="search terms…"
+  <!-- controlli -->
+  <div class="panel"><div class="head"><h2>Esplora</h2></div><div class="body">
+    <p class="eyebrow">Termine focus</p>
+    <div class="termbox" style="display:block"><input id="focusSearch" placeholder="cerca termine…"
       style="width:100%;font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line-strong);border-radius:5px">
       <div class="res" id="focusRes" style="max-height:150px;overflow:auto;margin-top:4px"></div></div>
 
-    <p class="eyebrow" style="margin-top:14px">Depth: <span id="depthVal">2</span></p>
+    <p class="eyebrow" style="margin-top:14px">Profondità: <span id="depthVal">2</span></p>
     <input type="range" id="depth" min="1" max="4" value="2" style="width:100%">
 
-    <p class="eyebrow" style="margin-top:14px">Edge types</p>
-    <label style="display:block;font-size:13px"><input type="checkbox" id="kRelation" checked> semantic relations</label>
-    <label style="display:block;font-size:13px"><input type="checkbox" id="kCooccur" checked> text co-occurrences</label>
+    <p class="eyebrow" style="margin-top:14px">Tipo di archi</p>
+    <label style="display:block;font-size:13px"><input type="checkbox" id="kRelation" checked> relazioni semantiche</label>
+    <label style="display:block;font-size:13px"><input type="checkbox" id="kCooccur" checked> co-occorrenze nel testo</label>
 
-    <p class="eyebrow" style="margin-top:14px">Legend</p>
+    <p class="eyebrow" style="margin-top:14px">Legenda</p>
     <div id="legend" style="font-size:12px"></div>
 
-    <p class="eyebrow" style="margin-top:14px">Statistics</p>
+    <p class="eyebrow" style="margin-top:14px">Statistiche</p>
     <div class="muted" style="font-size:12px" id="stats">
-      Terms: {{ stats.text_terms }}<br>Relations: {{ stats.relations }}
-      (hierarchical: {{ stats.hierarchical }})</div>
+      Termini: {{ stats.text_terms }}<br>Relazioni: {{ stats.relations }}
+      (gerarchiche: {{ stats.hierarchical }})</div>
   </div></div>
 
-  <!-- graph -->
-  <div class="panel" style="overflow:hidden"><div class="head"><h2>Relation graph</h2><span class="spacer"></span>
+  <!-- grafo -->
+  <div class="panel" style="overflow:hidden"><div class="head"><h2>Grafo delle relazioni</h2><span class="spacer"></span>
     <span class="muted" id="graphInfo"></span></div>
     <div class="body" style="padding:0;height:calc(100% - 46px)">
       <svg id="graph" style="width:100%;height:100%;display:block;background:#fbfaf6"></svg>
     </div>
   </div>
 
-  <!-- detail -->
-  <div class="panel"><div class="head"><h2>Details</h2></div><div class="body" id="detail">
-    <p class="muted" style="font-size:13px">Select a node to inspect its relations, hierarchy and path from the focus term.</p>
+  <!-- dettaglio -->
+  <div class="panel"><div class="head"><h2>Dettagli</h2></div><div class="body" id="detail">
+    <p class="muted" style="font-size:13px">Clicca un nodo per vederne relazioni, gerarchia e percorso dal focus.</p>
   </div></div>
 </div>
 

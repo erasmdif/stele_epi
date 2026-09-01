@@ -4,9 +4,9 @@
   const $=s=>document.querySelector(s);
   const $$=s=>Array.from(document.querySelectorAll(s));
   const TID=window.STELE_TERM_ID, TTYPE=window.STELE_TERM_TYPE;
-  const RELS_HINT=[['IS_A','is a type of'],['PART_OF','is part of'],
-    ['ASSOCIATED_WITH','is associated with'],['EQUIVALENT_TO','is equivalent to'],
-    ['DERIVED_FROM','is derived from'],['RELATED_TO','is related to']];
+  const RELS_HINT=[['IS_A','è un tipo di'],['PART_OF','fa parte di'],
+    ['ASSOCIATED_WITH','associato a'],['EQUIVALENT_TO','equivalente a'],
+    ['DERIVED_FROM','deriva da'],['RELATED_TO','collegato a']];
   const TYPES=['person','deity','place','institution','ethnonym','formula','abbreviation','concept','quantity','event','title','office','object_concept','other'];
   const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
@@ -23,13 +23,13 @@
       preferred_label:$('#fPreferred').value.trim(),
       term_type:$('#fType').value,
       description:$('#fDescription').value
-    }); toast('Saved.','ok'); setTimeout(reload,400);}
+    }); toast('Salvato.','ok'); setTimeout(reload,400);}
     catch(e){toast(e.message,'err');}
   });
   $('#btnDelete').addEventListener('click',async()=>{
-    if(!confirm('Delete this record? Records used by annotations cannot be deleted.'))return;
+    if(!confirm('Eliminare questo record? Non sarà possibile se è già usato in qualche annotazione.'))return;
     try{await api('DELETE',`/api/text-terms/${TID}`);
-      toast('Deleted.','ok'); setTimeout(()=>location.href='/vocabularies',600);}
+      toast('Eliminato.','ok'); setTimeout(()=>location.href='/vocabularies',600);}
     catch(e){toast(e.message,'err');}
   });
 
@@ -47,7 +47,7 @@
 
   // external IDs
   $('#btnAddExternal').addEventListener('click',async()=>{
-    const id=$('#newIdentifier').value.trim(); if(!id){toast('Identifier is required.','warn');return;}
+    const id=$('#newIdentifier').value.trim(); if(!id){toast('Identificativo obbligatorio.','warn');return;}
     try{await api('POST',`/api/text-terms/${TID}/external-ids`,{
       authority:$('#newAuthority').value, identifier:id, uri:$('#newUri').value||null}); reload();}
     catch(e){toast(e.message,'err');}
@@ -60,7 +60,7 @@
   // relazioni: rimuovi
   $$('#neighbours .rm').forEach(b=>b.addEventListener('click',async()=>{
     const row=b.closest('[data-source]');
-    if(!confirm('Remove this relation?'))return;
+    if(!confirm('Rimuovere questa relazione?'))return;
     try{await api('DELETE','/api/text-term-relations',{
       source_id:+row.dataset.source,target_id:+row.dataset.target,relation_code:row.dataset.rel});
       reload();}catch(e){toast(e.message,'err');}
@@ -77,7 +77,7 @@
         <select id="relSel" style="width:52%;font:inherit;font-size:12px;padding:4px 6px;border:1px solid var(--line-strong);border-radius:5px">
           ${RELS_HINT.map(r=>`<option value="${r[0]}">${r[0]} · ${r[1]}</option>`).join('')}
         </select>
-        <input id="relQ" placeholder="type a target label…" style="flex:1">
+        <input id="relQ" placeholder="digita etichetta di destinazione…" style="flex:1">
       </div>
       <div class="res" id="relRes"></div>`;
     host.appendChild(m);
@@ -92,13 +92,13 @@
         if(!exact){
           html+=`<div class="primary-create" id="createNew">
             <span class="plus">＋</span>
-            <span>Create <b>“${esc(val)}”</b> as</span>
+            <span>Crea <b>«${esc(val)}»</b> come</span>
             <select id="createType">${TYPES.map(t=>`<option ${t===TTYPE?'selected':''}>${t}</option>`).join('')}</select>
           </div>`;
         }
       }
       html+=filtered.map(x=>`<button data-id="${x.id}" style="display:block;width:100%;text-align:left;border:none;background:transparent;padding:5px 8px;border-radius:5px;cursor:pointer;font:inherit;font-size:13px">${esc(x.preferred_label)} <span class="tag">${x.term_type}</span></button>`).join('');
-      if(!filtered.length && !val) html='<div class="muted" style="font-size:12px;padding:4px">Type to search or create.</div>';
+      if(!filtered.length && !val) html='<div class="muted" style="font-size:12px;padding:4px">Digita per cercare o creare.</div>';
       res.innerHTML=html;
 
       const createEl=res.querySelector('#createNew');

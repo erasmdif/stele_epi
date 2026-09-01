@@ -25,7 +25,7 @@
     // filtri: solo datazioni con almeno un anno
     const items=(chrono||[]).filter(x=>x.absolute_from!=null || x.absolute_to!=null);
     if(!items.length){
-      el.innerHTML='<div class="muted" style="font-size:13px;padding:6px 0">No dating with absolute years. Add one below.</div>';
+      el.innerHTML='<div class="muted" style="font-size:13px;padding:6px 0">Nessuna datazione con anni assoluti — aggiungine una qui sotto.</div>';
       return;
     }
     // estendo un po' i bordi per respiro

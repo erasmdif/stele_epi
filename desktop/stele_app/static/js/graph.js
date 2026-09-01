@@ -33,7 +33,7 @@
     const byId = {}; nodes.forEach(n => byId[n.id] = n);
     edges = g.edges.filter(e => byId[e.source] && byId[e.target])
       .map(e => Object.assign({}, e, { s: byId[e.source], t: byId[e.target] }));
-    $('#graphInfo').textContent = `${nodes.length} nodes · ${edges.length} edges`;
+    $('#graphInfo').textContent = `${nodes.length} nodi · ${edges.length} archi`;
     renderLegend();
     runSim();
   }
@@ -43,7 +43,7 @@
     $('#legend').innerHTML = types.map(t =>
       `<div style="display:flex;align-items:center;gap:6px;padding:1px 0">
         <span style="width:10px;height:10px;border-radius:50%;background:${colorOf(t)};display:inline-block"></span>${t}</div>`).join('') +
-      `<div style="margin-top:6px;color:var(--ink-soft)">— hierarchical &nbsp; ·&nbsp; <span style="color:#b0a99a">···</span> co-occurrence</div>`;
+      `<div style="margin-top:6px;color:var(--ink-soft)">— gerarchica &nbsp; ·&nbsp; <span style="color:#b0a99a">···</span> co-occorrenza</div>`;
   }
 
   /* --- simulazione force-directed --- */
@@ -136,12 +136,12 @@
       <div style="display:flex;align-items:center;gap:8px">
         <span style="width:12px;height:12px;border-radius:50%;background:${colorOf(selected.type)};display:inline-block"></span>
         <b style="font-size:16px">${esc(selected.label)}</b><span class="tag">${selected.type}</span></div>
-      <div style="margin-top:6px"><button class="btn mini" id="setFocus">Set as focus</button></div>
-      ${anc.length ? `<p class="eyebrow" style="margin-top:12px">Hierarchy</p><div class="muted" style="font-size:13px">${esc(selected.label)} → ${anc.map(esc).join(' → ')}</div>` : ''}
-      <p class="eyebrow" style="margin-top:12px">Direct relations (${neigh.length})</p>
-      <div style="font-size:13px">${neigh.map(n => `<div style="padding:2px 0">${n.dir === 'out' ? '' : '↩ '}<span class="muted">${esc(n.rel_label)}</span> → <a href="#" data-goto="${n.other_id}">${esc(n.other_label)}</a></div>`).join('') || '<span class="muted">none</span>'}</div>
-      <p class="eyebrow" style="margin-top:12px">Path from focus</p>
-      <div style="font-size:13px">${path ? path.map(esc).join(' → ') : '<span class="muted">no path in the loaded graph</span>'}</div>`;
+      <div style="margin-top:6px"><button class="btn mini" id="setFocus">Metti a fuoco</button></div>
+      ${anc.length ? `<p class="eyebrow" style="margin-top:12px">Gerarchia</p><div class="muted" style="font-size:13px">${esc(selected.label)} → ${anc.map(esc).join(' → ')}</div>` : ''}
+      <p class="eyebrow" style="margin-top:12px">Relazioni dirette (${neigh.length})</p>
+      <div style="font-size:13px">${neigh.map(n => `<div style="padding:2px 0">${n.dir === 'out' ? '' : '↩ '}<span class="muted">${esc(n.rel_label)}</span> → <a href="#" data-goto="${n.other_id}">${esc(n.other_label)}</a></div>`).join('') || '<span class="muted">nessuna</span>'}</div>
+      <p class="eyebrow" style="margin-top:12px">Percorso dal focus</p>
+      <div style="font-size:13px">${path ? path.map(esc).join(' → ') : '<span class="muted">nessun percorso nel grafo caricato</span>'}</div>`;
     const sf = $('#setFocus'); if (sf) sf.addEventListener('click', () => { FOCUS = id; load(); });
     $('#detail').querySelectorAll('[data-goto]').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); selectNode(+a.dataset.goto); }));
   }
@@ -178,5 +178,5 @@
 
   bind();
   if (FOCUS) load();
-  else $('#detail').innerHTML = '<p class="muted">No terms have relations. Add relations from the annotation view.</p>';
+  else $('#detail').innerHTML = '<p class="muted">Nessun termine con relazioni. Aggiungine dalla vista di annotazione.</p>';
 })();

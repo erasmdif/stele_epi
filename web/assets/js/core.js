@@ -28,11 +28,11 @@
   // Categorie di annotazione (vocabolario controllato, con colore e mappatura
   // TEI). 'luogo' è la categoria geolocalizzabile (equivale al tipo 'place').
   const CATEGORIES = {
-    lessico:    { label: 'lexical item', color: '#2f7d5b', tei: 'term' },
-    persona:    { label: 'person',       color: '#7a4fb0', tei: 'persName' },
-    luogo:      { label: 'place',        color: '#2a6f9a', tei: 'placeName', place: true },
-    cronologia: { label: 'chronology',   color: '#c07b1f', tei: 'date' },
-    nota:       { label: 'note',         color: '#6b6559', tei: 'note' }
+    lessico:    { label: 'lessico',    color: '#2f7d5b', tei: 'term' },
+    persona:    { label: 'persona',    color: '#7a4fb0', tei: 'persName' },
+    luogo:      { label: 'luogo',      color: '#2a6f9a', tei: 'placeName', place: true },
+    cronologia: { label: 'cronologia', color: '#c07b1f', tei: 'date' },
+    nota:       { label: 'nota',       color: '#6b6559', tei: 'note' }
   };
   const CATEGORY_ORDER = ['lessico', 'persona', 'luogo', 'cronologia', 'nota'];
   function colorForCategory(c) { return (CATEGORIES[c] || {}).color || null; }
@@ -48,7 +48,7 @@
     'greek-ancient': { label: 'Greco antico', tei: 'grc', font: '"Noto Serif", "GFS Neohellenic", serif', palette: false },
     'chinese-trad': { label: 'Cinese tradizionale', tei: 'lzh-Hant', font: '"Noto Serif TC", serif', palette: false },
     'latin': { label: 'Latino', tei: 'lat', font: 'inherit', palette: false },
-    'other': { label: 'Other / unspecified', tei: 'und', font: 'inherit', palette: false }
+    'other': { label: 'Altro / non specificato', tei: 'und', font: 'inherit', palette: false }
   };
 
   function uid() {
@@ -229,7 +229,7 @@
 
   /* --- Validazione/normalizzazione di un documento caricato ----------------*/
   function normalizeDoc(raw) {
-    if (!raw || typeof raw !== 'object') throw new Error('Invalid document.');
+    if (!raw || typeof raw !== 'object') throw new Error('Documento non valido.');
     const d = newDoc();
     d.schema = raw.schema || SCHEMA_VERSION;
     d.text = typeof raw.text === 'string' ? raw.text : '';
@@ -313,11 +313,11 @@
     L.push('  <teiHeader>');
     L.push('    <fileDesc>');
     L.push('      <titleStmt>');
-    L.push('        <title>' + escapeXml(m.title || 'Annotated text') + '</title>');
+    L.push('        <title>' + escapeXml(m.title || 'Testo annotato') + '</title>');
     if (m.author) L.push('        <author>' + escapeXml(m.author) + '</author>');
     L.push('      </titleStmt>');
-    L.push('      <publicationStmt><p>Produced with Stele, a stand-off annotator for historical texts.</p></publicationStmt>');
-    L.push('      <sourceDesc><p>' + escapeXml(m.description || 'Born digital.') + '</p></sourceDesc>');
+    L.push('      <publicationStmt><p>Prodotto con Stele (annotatore stand-off per testi storici).</p></publicationStmt>');
+    L.push('      <sourceDesc><p>' + escapeXml(m.description || 'Nato digitale.') + '</p></sourceDesc>');
     L.push('    </fileDesc>');
     L.push('    <profileDesc><langUsage>');
     L.push('      <language ident="' + escapeXml(scr.tei) + '">' + escapeXml(scr.label) + '</language>');
@@ -355,10 +355,10 @@
   /* --- Import da TEI (prodotto da toTEI). DOMParserImpl opzionale per Node --*/
   function fromTEI(xml, DOMParserImpl) {
     const DP = DOMParserImpl || (typeof DOMParser !== 'undefined' ? DOMParser : null);
-    if (!DP) throw new Error('DOMParser is not available.');
+    if (!DP) throw new Error('DOMParser non disponibile.');
     const dom = new DP().parseFromString(xml, 'application/xml');
     const err = dom.getElementsByTagName('parsererror');
-    if (err && err.length) throw new Error('Malformed XML.');
+    if (err && err.length) throw new Error('XML malformato.');
 
     const first = (parent, tag) => {
       const els = parent.getElementsByTagName(tag);
@@ -437,7 +437,7 @@
     }));
   }
   async function geocodeGeoNames(query, username) {
-    if (!username) throw new Error('A GeoNames username is required (Settings).');
+    if (!username) throw new Error('Serve un username GeoNames (impostazioni).');
     const url = 'https://secure.geonames.org/searchJSON?maxRows=6&lang=it&style=FULL&q=' +
       encodeURIComponent(query) + '&username=' + encodeURIComponent(username);
     const r = await fetch(url);
@@ -462,8 +462,8 @@
   }
 
   function slugify(s) {
-    return (s || 'document').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'document';
+    return (s || 'documento').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'documento';
   }
 
   return {

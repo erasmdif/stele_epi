@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block heading %}Objects{% endblock %}
+{% block heading %}Oggetti{% endblock %}
 {% block content %}
 <div class="panel">
-  <div class="head"><h2>Objects</h2><span class="muted">{{ objects|length }} records</span></div>
+  <div class="head"><h2>Oggetti</h2><span class="muted">{{ objects|length }} record</span></div>
   <div class="body" style="padding:0">
     <table>
-      <thead><tr><th>Label</th><th>Inventory no.</th><th>Record type</th><th>Compl.</th><th>Texts</th></tr></thead>
+      <thead><tr><th>Etichetta</th><th>Inventario</th><th>Tipo record</th><th>Compl.</th><th>Testi</th></tr></thead>
       <tbody>
       {% for o in objects %}
         <tr onclick="location.href='{{ url_for('web.object_detail', obj_id=o.id) }}'" style="cursor:pointer">
