@@ -101,7 +101,10 @@ jobs:
   # Linux: crea binario standalone con PyInstaller
   # ============================================================================
   build-linux:
-    runs-on: ubuntu-latest
+    # PyInstaller bundles remain linked to the glibc available on the build
+    # runner.  Build on Ubuntu 22.04 (glibc 2.35) so the archive also runs on
+    # Ubuntu 22.04-derived distributions such as current TUXEDO OS releases.
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
@@ -135,11 +138,16 @@ jobs:
           
           # Script di avvio
           cat > Stele/run.sh << 'LAUNCHER'
-          #!/bin/bash
-          DIR="$(cd "$(dirname "$0")" && pwd)"
-          "$DIR/stele-desktop" "$@"
+          #!/usr/bin/env bash
+          set -e
+          DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+          exec "$DIR/stele-desktop" "$@"
           LAUNCHER
-          chmod +x Stele/run.sh
+          chmod +x Stele/run.sh Stele/stele-desktop
+
+          # Fail the workflow immediately if the executable cannot start on
+          # the same glibc baseline used for the release.
+          Stele/stele-desktop --help >/dev/null
           
           # Desktop entry
           cat > Stele/stele.desktop << 'DESKTOP'
@@ -147,7 +155,7 @@ jobs:
           Version=1.0
           Type=Application
           Name=Stele Desktop
-          Comment=Strumenti per l'epigrafia digitale
+          Comment=Tools for digital epigraphy
           Exec=bash run.sh
           Icon=document-edit
           Categories=Office;

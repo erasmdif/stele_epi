@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,7 +15,7 @@
   <header class="topbar">
     <h1>{% block heading %}Workbench{% endblock %}</h1>
     <span class="spacer"></span>
-    <span class="chip"><span class="g">●</span> project.gpkg · locale</span>
+    <span class="chip"><span class="g">●</span> project.gpkg · local</span>
   </header>
   <nav class="sidebar">
     {% for key, label, icon in nav %}
@@ -23,13 +23,22 @@
         <span class="ic">{{ icon }}</span>{{ label }}</a>
       {% if key in ('texts',) %}<div class="sep"></div>{% endif %}
     {% endfor %}
-    <div class="foot">Stele DBMS v0.1 (alpha)<br>SQLite / GeoPackage</div>
+    <div class="foot">Stele DBMS v{{ config.APP_VERSION }}<br>SQLite / GeoPackage</div>
   </nav>
-  <main class="main">{% block content %}{% endblock %}</main>
+  <main class="main">
+    {% if config.SAMPLE_DATA_ACTIVE %}
+    <aside class="sample-warning" role="note" aria-label="Sample data disclaimer">
+      <strong>AI-generated mock data.</strong> The bundled sample records are fictional and were
+      generated with AI solely to demonstrate the software. They must not be treated as real
+      archaeological, epigraphic, historical, bibliographic, or scholarly evidence.
+    </aside>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
   <footer class="foot">
-    <span>Modalità: <b>locale</b> (SQLite / GeoPackage)</span>
+    <span>Mode: <b>local</b> (SQLite / GeoPackage)</span>
     <span class="spacer"></span>
-    <span class="dot"></span><span>Pronto</span>
+    <span class="dot"></span><span>Ready</span>
   </footer>
 </div>
 {% block scripts %}{% endblock %}

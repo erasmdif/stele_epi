@@ -16,6 +16,6 @@ if __name__ == "__main__":
     app = create_app()
     host = os.environ.get("STELE_HOST", "127.0.0.1")
     port = int(os.environ.get("STELE_PORT", "5000"))
-    print(f"\n  Stele DBMS — progetto: {app.config['PROJECT_DB']}")
-    print(f"  Apri:  http://{host}:{port}\n")
+    print(f"\n  Stele DBMS — project: {app.config['PROJECT_DB']}")
+    print(f"  Open:  http://{host}:{port}\n")
     app.run(host=host, port=port, debug=True)

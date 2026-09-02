@@ -116,7 +116,7 @@ def run():
         "absolute_from": -800, "absolute_to": -1000, "dating_method": "other"})
     ok("from > to -> 400", r.status_code == 400)
     ok("errore chiaro from>to",
-       "≤" in r.get_json().get("error", "") or "<=" in r.get_json().get("error", ""))
+       "less than or equal" in r.get_json().get("error", ""))
 
     # (f) senza né termine né anni -> 400
     r = c.post(f"/api/context/{ctx_id}/datings", json={"dating_method": "other"})
@@ -173,7 +173,7 @@ def run():
     # /contexts (lista) mostra le nuove colonne
     r = c.get("/contexts")
     ok("lista contesti mostra deposit_type",
-       b"Tipo deposito" in r.data or b"deposit_type" in r.data)
+       b"Deposit type" in r.data or b"deposit_type" in r.data)
 
     # --- API enums ---
     r = c.get("/api/enums/archaeology").get_json()
@@ -188,6 +188,8 @@ def run():
     # rimuovo le colonne nuove simulando un DB vecchio
     c2.executescript("""
       BEGIN;
+      DROP VIEW IF EXISTS v_text_geography;
+      DROP VIEW IF EXISTS v_text_findspots;
       CREATE TABLE ctx_old AS SELECT id,uid,code,name,description,geometry,geometry_precision,
         geometry_note,reliability_id,source_reference,notes,is_active,created_at,updated_at,created_by,updated_by
         FROM context;

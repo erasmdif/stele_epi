@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Visualizza — Stele</title>
+  <title>View — Stele</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=Noto+Sans+Linear+B&display=swap" rel="stylesheet">
@@ -15,41 +15,45 @@
     <a class="brand" href="index.html">
       <span class="tablet">𐀁</span>
       <span class="mark">Stele</span>
-      <span class="sub">visualizza</span>
+      <span class="sub">viewer</span>
     </a>
-    <nav class="topnav"><a href="../" title="Torna alla home del progetto" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:var(--ink-soft);font-size:14px">← Progetto</a>
+    <nav class="topnav"><a href="../" title="Return to the project home" style="padding:6px 12px;border-radius:6px;text-decoration:none;color:var(--ink-soft);font-size:14px">← Project</a>
       <a href="index.html">Home</a>
-      <a href="editor.html">Annota</a>
-      <a href="viewer.html" class="active">Visualizza</a>
+      <a href="editor.html">Annotate</a>
+      <a href="viewer.html" class="active">View</a>
     </nav>
     <span class="spacer"></span>
     <div class="actions">
-      <label class="btn small" for="fileOpen">📂 Apri file…</label>
+      <label class="btn small" for="fileOpen">📂 Open file…</label>
       <input type="file" id="fileOpen" accept=".json,.xml,application/json,text/xml" hidden>
-      <button class="btn small" id="btnSession">🗄 Sessione corrente</button>
-      <a class="btn small primary" href="editor.html" id="btnEdit">Modifica →</a>
+      <button class="btn small" id="btnSession">🗄 Current session</button>
+      <a class="btn small primary" href="editor.html" id="btnEdit">Edit →</a>
     </div>
     <div class="wm" aria-hidden="true">𐀀𐀁𐀂𐀃𐀄
 𐀈𐀉𐀊𐀋</div>
   </header>
 
   <main class="wrap">
+    <div class="inline-note" style="border-left-color:#b23434;margin-bottom:14px">
+      <strong>Bundled-example disclaimer.</strong> The supplied sample document is a fictional,
+      AI-generated mock-up for demonstration only—not a scholarly edition or evidence source.
+    </div>
     <div id="docHeader" class="panel doc-header" style="margin-bottom:16px" hidden>
       <div class="panel-body">
         <div class="doc-icon">▤</div>
-        <div class="doc-field"><div class="k">Lingua / scrittura</div><div class="v" id="vScript"></div></div>
-        <div class="doc-field"><div class="k">Titolo</div><div class="v title" id="vTitle"></div></div>
-        <div class="doc-field"><div class="k">Autore / curatore</div><div class="v" id="vAuthor"></div></div>
-        <div class="doc-field"><div class="k">Descrizione</div><div class="v" id="vDesc"></div></div>
+        <div class="doc-field"><div class="k">Language / script</div><div class="v" id="vScript"></div></div>
+        <div class="doc-field"><div class="k">Title</div><div class="v title" id="vTitle"></div></div>
+        <div class="doc-field"><div class="k">Author / editor</div><div class="v" id="vAuthor"></div></div>
+        <div class="doc-field"><div class="k">Description</div><div class="v" id="vDesc"></div></div>
       </div>
     </div>
 
     <div id="empty" class="panel">
       <div class="panel-body">
-        <h2 style="margin-top:0">Apri un documento annotato</h2>
-        <p class="hint">Trascina qui un file <code>.json</code> o <code>.tei.xml</code> prodotto con Stele, usa «Apri file…», oppure «Sessione corrente» per rivedere il lavoro in corso.</p>
+        <h2 style="margin-top:0">Open an annotated document</h2>
+        <p class="hint">Drop a Stele <code>.json</code> or <code>.tei.xml</code> file here, use “Open file…”, or load the current session.</p>
         <div class="dropzone" id="dropzone" style="border:1px dashed var(--line-strong);border-radius:var(--radius);padding:30px;text-align:center;color:var(--ink-soft);margin-top:10px">
-          Trascina qui il file, oppure <label for="fileOpen" style="color:var(--accent-ink);cursor:pointer;text-decoration:underline">scegline uno</label>.
+          Drop the file here or <label for="fileOpen" style="color:var(--accent-ink);cursor:pointer;text-decoration:underline">choose one</label>.
         </div>
       </div>
     </div>
@@ -57,8 +61,8 @@
     <div class="editor-grid" id="grid" hidden>
       <section class="panel">
         <div class="panel-head">
-          <h2>▤ Testo annotato</h2><span class="spacer"></span>
-          <div class="chip-row"><button class="btn small" id="btnLegend">☰ Legenda annotazioni</button></div>
+          <h2>▤ Annotated text</h2><span class="spacer"></span>
+          <div class="chip-row"><button class="btn small" id="btnLegend">☰ Annotation legend</button></div>
         </div>
         <div class="panel-body">
           <div class="reader" id="reader"></div>
@@ -69,16 +73,16 @@
         <div class="panel-head">
           <div class="tabs-bar" id="viewTabs">
             <button data-vtab="notes" class="active">Note</button>
-            <button data-vtab="map">Mappa</button>
+            <button data-vtab="map">Map</button>
           </div>
           <span class="spacer"></span>
-          <div class="chip-row"><button class="btn small" id="btnFilter">▾ Filtra note</button></div>
+          <div class="chip-row"><button class="btn small" id="btnFilter">▾ Filter notes</button></div>
         </div>
         <div class="panel-body">
           <div id="view-notes"><div class="ann-list" id="annList"></div></div>
           <div id="view-map" hidden>
             <div id="map"></div>
-            <div class="map-empty" id="mapEmpty" hidden>Nessun luogo con coordinate in questo documento.</div>
+            <div class="map-empty" id="mapEmpty" hidden>No places in this document have coordinates.</div>
           </div>
         </div>
       </section>
@@ -86,11 +90,11 @@
   </main>
 
   <footer class="statusbar">
-    <strong>Stele</strong><span class="sep">·</span><span>v0.1.1 (alpha)</span>
-    <span class="sep">·</span><span>Visualizzatore · sola lettura</span>
+    <strong>Stele</strong><span class="sep">·</span><span>v1.0.3</span>
+    <span class="sep">·</span><span>Viewer · read-only</span>
     <span class="spacer"></span>
     <span id="stFile"></span>
-    <span class="dot" id="stDot"></span><span id="stState">In attesa di un documento</span>
+    <span class="dot" id="stDot"></span><span id="stState">Waiting for a document</span>
   </footer>
 
   <div class="toast-host" id="toastHost"></div>

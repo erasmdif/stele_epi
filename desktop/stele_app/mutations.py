@@ -23,7 +23,7 @@ def _cert_id(conn, code):
 def _rel_id(conn, code):
     r = conn.execute("SELECT id, is_hierarchical FROM relation_type WHERE code=?", (code,)).fetchone()
     if not r:
-        raise ValueError(f"relation_type sconosciuto: {code}")
+        raise ValueError(f"Unknown relation_type: {code}")
     return r["id"], bool(r["is_hierarchical"])
 
 
@@ -45,23 +45,23 @@ def _log(conn, table, entity_id, action, before=None, after=None, user=None, not
 def _version_content(conn, version_id):
     r = conn.execute("SELECT content FROM text_version WHERE id=?", (version_id,)).fetchone()
     if not r:
-        raise ValueError("text_version inesistente")
+        raise ValueError("Text version not found.")
     return r["content"] or ""
 
 
 def _validate_spans(spans, content_len):
     if not spans:
-        raise ValueError("Un'annotazione deve avere almeno uno span.")
+        raise ValueError("An annotation must contain at least one span.")
     norm = []
     for s in spans:
         start = int(s.get("start", s.get("start_position")))
         end = int(s.get("end", s.get("end_position")))
         if start < 0:
-            raise ValueError("start negativo.")
+            raise ValueError("start cannot be negative.")
         if end <= start:
-            raise ValueError("Span a lunghezza zero o invertito (end deve essere > start).")
+            raise ValueError("A span cannot be empty or reversed; end must be greater than start.")
         if end > content_len:
-            raise ValueError(f"Lo span [{start},{end}) eccede la lunghezza del testo ({content_len} code point).")
+            raise ValueError(f"Span [{start},{end}) exceeds the text length ({content_len} code points).")
         norm.append((start, end))
     return norm
 
@@ -102,7 +102,7 @@ def create_annotation(conn, version_id, annotation_type="semantic", note="",
 def update_annotation(conn, aid, fields, user_id=None):
     cur = conn.execute("SELECT * FROM annotation WHERE id=?", (aid,)).fetchone()
     if not cur:
-        raise ValueError("annotazione inesistente")
+        raise ValueError("Annotation not found.")
     before = dict(cur)
     sets, vals = [], []
     if "annotation_type" in fields and fields["annotation_type"] in ANNOTATION_TYPES:
@@ -126,7 +126,7 @@ def update_annotation(conn, aid, fields, user_id=None):
 def delete_annotation(conn, aid, user_id=None):
     cur = conn.execute("SELECT * FROM annotation WHERE id=?", (aid,)).fetchone()
     if not cur:
-        raise ValueError("annotazione inesistente")
+        raise ValueError("Annotation not found.")
     conn.execute("DELETE FROM annotation WHERE id=?", (aid,))  # cascade span/term
     _log(conn, "annotation", aid, "other", before=dict(cur), user=user_id, note="delete")
     conn.commit()
@@ -136,7 +136,7 @@ def delete_annotation(conn, aid, user_id=None):
 def set_spans(conn, aid, spans, user_id=None):
     r = conn.execute("SELECT text_version_id FROM annotation WHERE id=?", (aid,)).fetchone()
     if not r:
-        raise ValueError("annotazione inesistente")
+        raise ValueError("Annotation not found.")
     content = _version_content(conn, r["text_version_id"])
     norm = _validate_spans(spans, _cp_len(content))
     conn.execute("DELETE FROM annotation_span WHERE annotation_id=?", (aid,))
@@ -157,13 +157,13 @@ def add_annotation_term(conn, aid, term_id, role="primary", certainty_code=None,
     if role not in ROLES:
         role = "primary"
     if not conn.execute("SELECT 1 FROM text_term WHERE id=?", (term_id,)).fetchone():
-        raise ValueError("text_term inesistente")
+        raise ValueError("Text term not found.")
     try:
         conn.execute(
             "INSERT INTO annotation_term (annotation_id,term_id,role,certainty_id) VALUES (?,?,?,?)",
             (aid, term_id, role, _cert_id(conn, certainty_code)))
     except Exception:
-        raise ValueError("Termine già collegato con questo ruolo.")
+        raise ValueError("The term is already linked with this role.")
     if _commit:
         conn.commit()
     return True
@@ -202,7 +202,7 @@ def search_text_terms(conn, q, limit=20):
 
 def create_text_term(conn, term_type, preferred_label, description=None, properties=None):
     if not preferred_label or not preferred_label.strip():
-        raise ValueError("preferred_label obbligatorio.")
+        raise ValueError("preferred_label is required.")
     if term_type not in TEXT_TERM_TYPES:
         term_type = "other"
     props = json.dumps(properties) if isinstance(properties, (dict, list)) else properties
@@ -217,9 +217,9 @@ def create_text_term(conn, term_type, preferred_label, description=None, propert
 def set_term_place(conn, term_id, lat, lon, precision="approximate", source="manual", note=None):
     r = conn.execute("SELECT term_type FROM text_term WHERE id=?", (term_id,)).fetchone()
     if not r:
-        raise ValueError("text_term inesistente")
+        raise ValueError("Text term not found.")
     if r["term_type"] != "place":
-        raise ValueError("Le coordinate si assegnano solo a termini di tipo 'place'.")
+        raise ValueError("Coordinates can only be assigned to terms of type 'place'.")
     from .db.geopackage import encode_point
     blob = encode_point(float(lon), float(lat))
     existing = conn.execute("SELECT id FROM text_term_place WHERE term_id=?", (term_id,)).fetchone()
@@ -237,23 +237,23 @@ def add_term_relation(conn, source_id, target_id, relation_code, certainty_code=
     """Aggiunge una relazione semantica fra due text_term (rete N:M).
     Impedisce auto-relazioni e cicli nelle relazioni gerarchiche (§23.5)."""
     if source_id == target_id:
-        raise ValueError("source e target coincidono.")
+        raise ValueError("Source and target cannot be the same.")
     for tid in (source_id, target_id):
         if not conn.execute("SELECT 1 FROM text_term WHERE id=?", (tid,)).fetchone():
-            raise ValueError("text_term inesistente")
+            raise ValueError("Text term not found.")
     rel_id, hierarchical = _rel_id(conn, relation_code)
     if hierarchical:
         # ciclo se source è già antenato di target (target può risalire a source)
         anc = {a["id"] for a in models.ancestors(conn, "text_term", target_id)}
         if source_id in anc:
-            raise ValueError("La relazione creerebbe un ciclo nella gerarchia.")
+            raise ValueError("This relation would create a cycle in the hierarchy.")
     try:
         conn.execute(
             "INSERT INTO text_term_relation (source_term_id,target_term_id,relation_type_id,certainty_id,created_at) "
             "VALUES (?,?,?,?,?)",
             (source_id, target_id, rel_id, _cert_id(conn, certainty_code), now_iso()))
     except Exception:
-        raise ValueError("Relazione già esistente.")
+        raise ValueError("The relation already exists.")
     conn.commit()
     return True
 
@@ -293,12 +293,12 @@ def remap_spans(old, new, spans):
 def revise_text_version(conn, version_id, new_content, note=None, migrate=True, user_id=None):
     v = conn.execute("SELECT * FROM text_version WHERE id=?", (version_id,)).fetchone()
     if not v:
-        raise ValueError("text_version inesistente")
+        raise ValueError("Text version not found.")
     v = dict(v)
     old_content = v["content"] or ""
     new_content = nfc(new_content or "")
     if new_content == old_content:
-        raise ValueError("Il testo non è cambiato.")
+        raise ValueError("The text has not changed.")
     doc_id, vtype = v["text_document_id"], v["version_type"]
     max_no = conn.execute(
         "SELECT COALESCE(MAX(version_number),0) FROM text_version WHERE text_document_id=? AND version_type=?",
@@ -354,12 +354,12 @@ def revise_text_version(conn, version_id, new_content, note=None, migrate=True, 
 def update_text_term(conn, term_id, fields, user_id=None):
     cur = conn.execute("SELECT * FROM text_term WHERE id=?", (term_id,)).fetchone()
     if not cur:
-        raise ValueError("text_term inesistente")
+        raise ValueError("Text term not found.")
     sets, vals = [], []
     if "preferred_label" in fields:
         v = (fields["preferred_label"] or "").strip()
         if not v:
-            raise ValueError("preferred_label non può essere vuoto.")
+            raise ValueError("preferred_label cannot be empty.")
         sets.append("preferred_label=?"); vals.append(v)
     if "term_type" in fields and fields["term_type"] in TEXT_TERM_TYPES:
         sets.append("term_type=?"); vals.append(fields["term_type"])
@@ -381,11 +381,11 @@ def delete_text_term(conn, term_id, user_id=None):
     solleva un errore con messaggio esplicito."""
     cur = conn.execute("SELECT * FROM text_term WHERE id=?", (term_id,)).fetchone()
     if not cur:
-        raise ValueError("text_term inesistente")
+        raise ValueError("Text term not found.")
     used = conn.execute("SELECT count(*) FROM annotation_term WHERE term_id=?", (term_id,)).fetchone()[0]
     if used:
-        raise ValueError(f"Impossibile eliminare: il termine è usato in {used} annotazione/i. "
-                         "Scollegalo prima dalle annotazioni.")
+        raise ValueError(f"Cannot delete this term: it is used in {used} annotation(s). "
+                         "Unlink it from the annotations first.")
     conn.execute("DELETE FROM text_term WHERE id=?", (term_id,))
     _log(conn, "text_term", term_id, "other", before=dict(cur), user=user_id, note="delete")
     conn.commit()
@@ -398,10 +398,10 @@ LABEL_TYPES = ("preferred", "alternative", "abbreviation", "historical", "transl
 def add_term_label(conn, term_id, label, language=None, label_type="alternative",
                    script=None, is_preferred=False):
     if not conn.execute("SELECT 1 FROM text_term WHERE id=?", (term_id,)).fetchone():
-        raise ValueError("text_term inesistente")
+        raise ValueError("Text term not found.")
     label = (label or "").strip()
     if not label:
-        raise ValueError("label vuota.")
+        raise ValueError("The label cannot be empty.")
     if label_type not in LABEL_TYPES:
         label_type = "alternative"
     lid = conn.execute(
@@ -420,15 +420,15 @@ def remove_term_label(conn, label_id):
 
 def add_term_external_id(conn, term_id, authority, identifier, uri=None, note=None):
     if not conn.execute("SELECT 1 FROM text_term WHERE id=?", (term_id,)).fetchone():
-        raise ValueError("text_term inesistente")
+        raise ValueError("Text term not found.")
     if not authority or not identifier:
-        raise ValueError("authority e identifier obbligatori.")
+        raise ValueError("authority and identifier are required.")
     try:
         xid = conn.execute(
             "INSERT INTO text_term_external_id (term_id,authority,identifier,uri,note) "
             "VALUES (?,?,?,?,?)", (term_id, authority.strip(), identifier.strip(), uri, note)).lastrowid
     except Exception:
-        raise ValueError("Questo identificativo esiste già per il termine.")
+        raise ValueError("This identifier already exists for the term.")
     conn.commit()
     return xid
 
@@ -464,13 +464,13 @@ def auto_align_document(conn, doc_id, user_id=None):
         prim = conn.execute("SELECT id FROM text_version WHERE text_document_id=? AND is_current=1 LIMIT 1",
                             (doc_id,)).fetchone()
     if not prim:
-        raise ValueError("Nessuna versione corrente da usare come primaria.")
+        raise ValueError("No current version is available as the primary version.")
     prim_id = prim["id"]
     prim_units = [dict(r) for r in conn.execute(
         "SELECT id,sequence FROM text_unit WHERE text_version_id=? AND unit_type='line' ORDER BY sequence",
         (prim_id,))]
     if not prim_units:
-        return {"aligned": 0, "note": "La versione primaria non ha unità 'line'."}
+        return {"aligned": 0, "note": "The primary version has no line units."}
     # unità delle altre versioni indicizzate per (version_id, sequence)
     others = [dict(r) for r in conn.execute("""
         SELECT u.id, u.sequence, v.id AS version_id, v.version_type
@@ -478,7 +478,7 @@ def auto_align_document(conn, doc_id, user_id=None):
          WHERE v.text_document_id=? AND v.id<>? AND u.unit_type='line' AND v.is_current=1
          ORDER BY v.version_type, u.sequence""", (doc_id, prim_id))]
     if not others:
-        return {"aligned": 0, "note": "Nessuna altra versione da allineare."}
+        return {"aligned": 0, "note": "No other versions are available for alignment."}
     aligned = 0
     already_aligned = set(r["text_unit_id"] for r in conn.execute("SELECT text_unit_id FROM text_unit_alignment"))
     for pu in prim_units:
@@ -569,7 +569,7 @@ _ALLOWED_VOCAB = {"context_term", "object_term", "chronology_term"}
 
 def _check_vocab(table):
     if table not in _ALLOWED_VOCAB:
-        raise ValueError(f"tabella non consentita: {table}")
+        raise ValueError(f"Table not allowed: {table}")
 
 
 def create_generic_term(conn, table, preferred_label, term_type=None,
@@ -577,7 +577,7 @@ def create_generic_term(conn, table, preferred_label, term_type=None,
     _check_vocab(table)
     label = (preferred_label or "").strip()
     if not label:
-        raise ValueError("preferred_label obbligatorio.")
+        raise ValueError("preferred_label is required.")
     cols = {"uid": new_uid(), "preferred_label": label,
             "description": description, "is_active": 1}
     # term_type esiste per context/object; per chronology no
@@ -601,7 +601,7 @@ def update_generic_term(conn, table, term_id, fields, user_id=None):
     _check_vocab(table)
     cur = conn.execute(f"SELECT * FROM {table} WHERE id=?", (term_id,)).fetchone()
     if not cur:
-        raise ValueError("term inesistente")
+        raise ValueError("Term not found.")
     sets, vals = [], []
     updatable = ["preferred_label", "description", "notes"]
     if table != "chronology_term":
@@ -614,10 +614,10 @@ def update_generic_term(conn, table, term_id, fields, user_id=None):
             if k == "preferred_label":
                 v = (v or "").strip()
                 if not v:
-                    raise ValueError("preferred_label non può essere vuoto.")
+                    raise ValueError("preferred_label cannot be empty.")
             if k in ("year_from", "year_to") and v not in (None, ""):
                 try: v = int(v)
-                except Exception: raise ValueError(f"{k} deve essere un intero.")
+                except Exception: raise ValueError(f"{k} must be an integer.")
             sets.append(f"{k}=?"); vals.append(v if v != "" else None)
     if not sets:
         return term_id
@@ -632,7 +632,7 @@ def delete_generic_term(conn, table, term_id, user_id=None):
     _check_vocab(table)
     cur = conn.execute(f"SELECT * FROM {table} WHERE id=?", (term_id,)).fetchone()
     if not cur:
-        raise ValueError("term inesistente")
+        raise ValueError("Term not found.")
     # controllo uso
     if table == "chronology_term":
         used = (conn.execute("SELECT count(*) FROM context_chronology WHERE chronology_term_id=?",
@@ -640,12 +640,12 @@ def delete_generic_term(conn, table, term_id, user_id=None):
                 + conn.execute("SELECT count(*) FROM object_chronology WHERE chronology_term_id=?",
                                (term_id,)).fetchone()[0])
         if used:
-            raise ValueError(f"Impossibile eliminare: usato in {used} datazione/i.")
+            raise ValueError(f"Cannot delete this term: it is used in {used} dating record(s).")
     else:
         assign = table.replace("_term", "_term_assignment")
         used = conn.execute(f"SELECT count(*) FROM {assign} WHERE term_id=?", (term_id,)).fetchone()[0]
         if used:
-            raise ValueError(f"Impossibile eliminare: usato in {used} assegnazione/i.")
+            raise ValueError(f"Cannot delete this term: it is used in {used} assignment(s).")
     conn.execute(f"DELETE FROM {table} WHERE id=?", (term_id,))
     _log(conn, table, term_id, "other", before=dict(cur), user=user_id, note="delete")
     conn.commit()
@@ -657,15 +657,15 @@ def add_generic_term_relation(conn, table, source_id, target_id, relation_code,
     _check_vocab(table)
     rel_table = f"{table}_relation"
     if source_id == target_id:
-        raise ValueError("source e target coincidono.")
+        raise ValueError("Source and target cannot be the same.")
     for tid in (source_id, target_id):
         if not conn.execute(f"SELECT 1 FROM {table} WHERE id=?", (tid,)).fetchone():
-            raise ValueError(f"{table} inesistente")
+            raise ValueError(f"{table} record not found.")
     rel_id, hierarchical = _rel_id(conn, relation_code)
     if hierarchical:
         anc = {a["id"] for a in models.ancestors(conn, table, target_id)}
         if source_id in anc:
-            raise ValueError("La relazione creerebbe un ciclo nella gerarchia.")
+            raise ValueError("This relation would create a cycle in the hierarchy.")
     try:
         # chronology_term_relation ha created_at; context/object no
         if table == "chronology_term":
@@ -677,7 +677,7 @@ def add_generic_term_relation(conn, table, source_id, target_id, relation_code,
                          f"certainty_id) VALUES (?,?,?,?)",
                          (source_id, target_id, rel_id, _cert_id(conn, certainty_code)))
     except Exception:
-        raise ValueError("Relazione già esistente.")
+        raise ValueError("The relation already exists.")
     conn.commit()
     return True
 
@@ -696,12 +696,12 @@ def add_generic_term_label(conn, table, term_id, label, language=None,
                            label_type="alternative", script=None, is_preferred=False):
     _check_vocab(table)
     if table == "chronology_term":
-        raise ValueError("chronology_term non ha etichette alternative.")
+        raise ValueError("chronology_term does not support alternative labels.")
     if not conn.execute(f"SELECT 1 FROM {table} WHERE id=?", (term_id,)).fetchone():
-        raise ValueError("term inesistente")
+        raise ValueError("Term not found.")
     label = (label or "").strip()
     if not label:
-        raise ValueError("label vuota.")
+        raise ValueError("The label cannot be empty.")
     if label_type not in LABEL_TYPES:
         label_type = "alternative"
     lid = conn.execute(
@@ -715,7 +715,7 @@ def add_generic_term_label(conn, table, term_id, label, language=None,
 def remove_generic_term_label(conn, table, label_id):
     _check_vocab(table)
     if table == "chronology_term":
-        raise ValueError("chronology_term non ha etichette.")
+        raise ValueError("chronology_term does not have labels.")
     conn.execute(f"DELETE FROM {table}_label WHERE id={int(label_id)}")
     conn.commit()
     return True
@@ -742,16 +742,16 @@ OBJECT_EDITABLE = ("inventory_number", "label", "record_kind", "description",
 def _validate_context_fields(fields):
     if "deposit_type" in fields and fields["deposit_type"] not in (None, "") \
             and fields["deposit_type"] not in DEPOSIT_TYPES:
-        raise ValueError(f"deposit_type non valido: {fields['deposit_type']}")
+        raise ValueError(f"Invalid deposit_type: {fields['deposit_type']}")
     if "excavation_technique" in fields and fields["excavation_technique"] not in (None, "") \
             and fields["excavation_technique"] not in EXCAVATION_TECHNIQUES:
-        raise ValueError(f"excavation_technique non valida: {fields['excavation_technique']}")
+        raise ValueError(f"Invalid excavation_technique: {fields['excavation_technique']}")
 
 
 def update_context(conn, context_id, fields, user_id=None):
     cur = conn.execute("SELECT * FROM context WHERE id=?", (context_id,)).fetchone()
     if not cur:
-        raise ValueError("context inesistente")
+        raise ValueError("Context not found.")
     _validate_context_fields(fields)
     sets, vals = [], []
     for k in CONTEXT_EDITABLE:
@@ -773,7 +773,7 @@ def update_context(conn, context_id, fields, user_id=None):
 def update_object(conn, object_id, fields, user_id=None):
     cur = conn.execute("SELECT * FROM object WHERE id=?", (object_id,)).fetchone()
     if not cur:
-        raise ValueError("object inesistente")
+        raise ValueError("Object not found.")
     # bool coercion
     for b in ("decoration_present", "restored"):
         if b in fields and fields[b] not in (None, ""):
@@ -782,9 +782,9 @@ def update_object(conn, object_id, fields, user_id=None):
         try:
             fields["completeness_percentage"] = float(fields["completeness_percentage"])
         except Exception:
-            raise ValueError("completeness_percentage deve essere un numero.")
+            raise ValueError("completeness_percentage must be a number.")
         if not (0 <= fields["completeness_percentage"] <= 100):
-            raise ValueError("completeness_percentage deve essere fra 0 e 100.")
+            raise ValueError("completeness_percentage must be between 0 and 100.")
     sets, vals = [], []
     for k in OBJECT_EDITABLE:
         if k in fields:
@@ -813,16 +813,16 @@ DATING_METHODS = ("stratigraphic_context", "palaeography", "stylistic",
 def _validate_dating(fields):
     if "dating_method" in fields and fields["dating_method"] and \
             fields["dating_method"] not in DATING_METHODS:
-        raise ValueError(f"dating_method non valido: {fields['dating_method']}")
+        raise ValueError(f"Invalid dating_method: {fields['dating_method']}")
     y_from = fields.get("absolute_from")
     y_to = fields.get("absolute_to")
     if y_from not in (None, "") and y_to not in (None, ""):
         try:
             yf, yt = int(y_from), int(y_to)
         except (TypeError, ValueError):
-            raise ValueError("Anni devono essere interi (numerazione astronomica: 1 BC = 0).")
+            raise ValueError("Years must be integers using astronomical numbering, where 1 BCE = 0.")
         if yf > yt:
-            raise ValueError("absolute_from deve essere ≤ absolute_to")
+            raise ValueError("absolute_from must be less than or equal to absolute_to.")
 
 
 def _resolve_chronology_term(conn, term_id_or_none, absolute_from, absolute_to):
@@ -847,19 +847,19 @@ def add_dating(conn, owner_kind, owner_id, chronology_term_id=None,
       (b) valori assoluti liberi + metodo + certezza,
       (c) entrambi (il termine per riferimento + valori sovrascritti)."""
     if owner_kind not in ("context", "object"):
-        raise ValueError("owner_kind deve essere 'context' o 'object'")
+        raise ValueError("owner_kind must be 'context' or 'object'.")
     if not conn.execute(f"SELECT 1 FROM {owner_kind} WHERE id=?", (owner_id,)).fetchone():
-        raise ValueError(f"{owner_kind} inesistente")
+        raise ValueError(f"{owner_kind} not found.")
     if chronology_term_id and not conn.execute(
             "SELECT 1 FROM chronology_term WHERE id=?", (chronology_term_id,)).fetchone():
-        raise ValueError("chronology_term inesistente")
+        raise ValueError("Chronology term not found.")
     _validate_dating({"dating_method": dating_method,
                        "absolute_from": absolute_from, "absolute_to": absolute_to})
     ctid, a_from, a_to = _resolve_chronology_term(conn, chronology_term_id,
                                                     absolute_from, absolute_to)
     # né termine né anni: senza senso
     if not ctid and a_from in (None, "") and a_to in (None, ""):
-        raise ValueError("Serve almeno un termine cronologico o un intervallo assoluto.")
+        raise ValueError("Provide at least one chronology term or an absolute interval.")
 
     table = f"{owner_kind}_chronology"
     owner_col = f"{owner_kind}_id"
@@ -887,11 +887,11 @@ def add_dating(conn, owner_kind, owner_id, chronology_term_id=None,
 
 def update_dating(conn, owner_kind, dating_id, fields, user_id=None):
     if owner_kind not in ("context", "object"):
-        raise ValueError("owner_kind deve essere 'context' o 'object'")
+        raise ValueError("owner_kind must be 'context' or 'object'.")
     table = f"{owner_kind}_chronology"
     cur = conn.execute(f"SELECT * FROM {table} WHERE id=?", (dating_id,)).fetchone()
     if not cur:
-        raise ValueError("datazione inesistente")
+        raise ValueError("Dating record not found.")
     _validate_dating(fields)
     editable = ("chronology_term_id", "absolute_from", "absolute_to",
                 "dating_method", "note")
@@ -901,7 +901,7 @@ def update_dating(conn, owner_kind, dating_id, fields, user_id=None):
             v = fields[k] if fields[k] != "" else None
             if k in ("absolute_from", "absolute_to") and v is not None:
                 try: v = int(v)
-                except Exception: raise ValueError(f"{k} deve essere intero.")
+                except Exception: raise ValueError(f"{k} must be an integer.")
             sets.append(f"{k}=?"); vals.append(v)
     if "certainty_code" in fields:
         sets.append("certainty_id=?"); vals.append(_cert_id(conn, fields["certainty_code"]))
@@ -916,11 +916,11 @@ def update_dating(conn, owner_kind, dating_id, fields, user_id=None):
 
 def delete_dating(conn, owner_kind, dating_id, user_id=None):
     if owner_kind not in ("context", "object"):
-        raise ValueError("owner_kind deve essere 'context' o 'object'")
+        raise ValueError("owner_kind must be 'context' or 'object'.")
     table = f"{owner_kind}_chronology"
     cur = conn.execute(f"SELECT * FROM {table} WHERE id=?", (dating_id,)).fetchone()
     if not cur:
-        raise ValueError("datazione inesistente")
+        raise ValueError("Dating record not found.")
     conn.execute(f"DELETE FROM {table} WHERE id=?", (dating_id,))
     _log(conn, table, dating_id, "other", before=dict(cur), user=user_id, note="delete")
     conn.commit()
@@ -931,7 +931,7 @@ def delete_dating(conn, owner_kind, dating_id, user_id=None):
 def add_term_assignment(conn, owner_kind, owner_id, term_id, certainty_code=None,
                         note=None, user_id=None):
     if owner_kind not in ("context", "object"):
-        raise ValueError("owner_kind deve essere 'context' o 'object'")
+        raise ValueError("owner_kind must be 'context' or 'object'.")
     table = f"{owner_kind}_term_assignment"
     owner_col = f"{owner_kind}_id"
     try:
@@ -940,14 +940,14 @@ def add_term_assignment(conn, owner_kind, owner_id, term_id, certainty_code=None
             f"VALUES (?,?,?,?,?,?)",
             (owner_id, term_id, _cert_id(conn, certainty_code), note, user_id, now_iso())).lastrowid
     except Exception:
-        raise ValueError("Termine già assegnato.")
+        raise ValueError("The term is already assigned.")
     conn.commit()
     return aid
 
 
 def remove_term_assignment(conn, owner_kind, assignment_id):
     if owner_kind not in ("context", "object"):
-        raise ValueError("owner_kind deve essere 'context' o 'object'")
+        raise ValueError("owner_kind must be 'context' or 'object'.")
     conn.execute(f"DELETE FROM {owner_kind}_term_assignment WHERE id=?", (assignment_id,))
     conn.commit()
     return True

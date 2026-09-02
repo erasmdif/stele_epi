@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block heading %}Analytics{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<div class="analytics-main">
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab active" data-tab="semantic">Semantic Search</button>
+    <button class="tab" data-tab="cooccurrence">Co-occurrence Graph</button>
+    <button class="tab" data-tab="matrix">Text × Concepts</button>
+    <button class="tab" data-tab="crossref">Text × Archaeology</button>
+    <button class="tab" data-tab="spatiotemporal">Space × Time Map</button>
+    <button class="tab" data-tab="formulas">Formulas &amp; Parallels</button>
+    <button class="tab" data-tab="timeline">Concept Timeline</button>
+    <button class="tab" data-tab="witnesses">Work Witnesses</button>
+  </div>
+
+  <!-- 1. SEMANTIC SEARCH -->
+  <section class="tab-panel active" id="panel-semantic">
+    <div class="panel-head">
+      <h2>Hierarchical Semantic Search</h2>
+      <p class="panel-desc">Select a concept to find all inscriptions annotated with it <em>or any of its descendants</em> in the vocabulary hierarchy.</p>
+    </div>
+    <div class="filter-row">
+      <label>Concept: <select id="sem-term"></select></label>
+      <label>Deposit type: <select id="sem-deposit"><option value="">— all —</option></select></label>
+      <label>From year: <input type="number" id="sem-from" placeholder="e.g. -1500"></label>
+      <label>To year: <input type="number" id="sem-to" placeholder="e.g. -1200"></label>
+      <button class="btn primary" id="sem-go">Search</button>
+    </div>
+    <div id="sem-results" class="results-area">
+      <p class="placeholder">Select a concept and press Search.</p>
+    </div>
+  </section>
+
+  <!-- 2. CO-OCCURRENCE GRAPH -->
+  <section class="tab-panel" id="panel-cooccurrence">
+    <div class="panel-head">
+      <h2>Co-occurrence Graph</h2>
+      <p class="panel-desc">Terms that appear together in the same text. Edge weight = number of co-occurrences.<br><em>A graph visualises recorded associations — not necessarily historical relationships.</em></p>
+    </div>
+    <div class="filter-row">
+      <label>Scope: <select id="cooc-scope">
+        <option value="version">Same text version</option>
+        <option value="unit">Same text unit (line)</option>
+      </select></label>
+      <label>Min co-occurrences: <input type="number" id="cooc-min" value="1" min="1" style="width:70px"></label>
+      <button class="btn primary" id="cooc-go">Build Graph</button>
+    </div>
+    <div id="cooc-container" class="graph-container">
+      <svg id="cooc-svg"></svg>
+    </div>
+  </section>
+
+  <!-- 3. TEXT × CONCEPTS MATRIX -->
+  <section class="tab-panel" id="panel-matrix">
+    <div class="panel-head">
+      <h2>Text × Concept Matrix</h2>
+      <p class="panel-desc">Heatmap: rows = documents, columns = root semantic branches. Cell = number of annotations in that branch.</p>
+    </div>
+    <button class="btn primary" id="matrix-go">Load Matrix</button>
+    <div id="matrix-container" class="heatmap-container"></div>
+  </section>
+
+  <!-- 4. TEXT × ARCHAEOLOGY CROSS-REFERENCE -->
+  <section class="tab-panel" id="panel-crossref">
+    <div class="panel-head">
+      <h2>Textual Content × Archaeological Context</h2>
+      <p class="panel-desc">Heatmap crossing semantic branches (rows) with archaeological deposit types (columns). Cell = distinct annotation count.</p>
+    </div>
+    <button class="btn primary" id="cross-go">Load Cross-Reference</button>
+    <div id="cross-container" class="heatmap-container"></div>
+  </section>
+
+  <!-- 6. SPACE × TIME MAP -->
+  <section class="tab-panel" id="panel-spatiotemporal">
+    <div class="panel-head">
+      <h2>Spatio-temporal Distribution</h2>
+      <p class="panel-desc">Map the attestations of a concept (or all annotations) with chronological filtering.
+        <br><em>Findspot</em> = where the inscription was recovered · <em>Mention</em> = the places named in the text.
+        These are conceptually distinct: an inscription found in Rome may mention Hispania.</p>
+    </div>
+    <div class="filter-row">
+      <label>Concept: <select id="spt-term"><option value="">— all annotations —</option></select></label>
+      <label>Mode: <select id="spt-mode">
+        <option value="findspot">Findspot (where recovered)</option>
+        <option value="mention">Mention (places named in text)</option>
+      </select></label>
+      <label>From year: <input type="number" id="spt-from" placeholder="e.g. 50"></label>
+      <label>To year: <input type="number" id="spt-to" placeholder="e.g. 200"></label>
+      <button class="btn primary" id="spt-go">Load Map</button>
+    </div>
+    <div id="spt-stats" class="spt-stats"></div>
+    <div id="spt-map"></div>
+  </section>
+
+  <!-- 7. FORMULAS & PARALLELS -->
+  <section class="tab-panel" id="panel-formulas">
+    <div class="panel-head">
+      <h2>Formulas &amp; Textual Parallels</h2>
+      <p class="panel-desc">Discover recurring formulas across the corpus (n-gram frequencies), and
+        detect pairs of texts that share substantial phrasing (Jaccard similarity on word n-grams).
+        Higher <em>ngram</em> = stricter (longer contiguous sequences). Higher <em>min similarity</em> = fewer, stronger matches.</p>
+    </div>
+    <div class="filter-row">
+      <label>Version type: <select id="frm-vtype">
+        <option value="normalized">normalized</option>
+        <option value="diplomatic_transcription">diplomatic</option>
+        <option value="translation">translation</option>
+      </select></label>
+      <label>N-gram size: <input type="number" id="frm-ngram" value="2" min="1" max="6" style="width:70px"></label>
+      <label>Min similarity: <input type="number" id="frm-sim" value="0.1" min="0" max="1" step="0.05" style="width:80px"></label>
+      <button class="btn primary" id="frm-go">Find Parallels</button>
+    </div>
+    <div class="two-col">
+      <div>
+        <h3 class="sub-h">Most recurring n-grams</h3>
+        <div id="frm-ngram-list" class="ngram-list"></div>
+      </div>
+      <div>
+        <h3 class="sub-h">Text pairs with shared phrasing</h3>
+        <div id="frm-matches" class="matches-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. CONCEPT TIMELINE -->
+  <section class="tab-panel" id="panel-timeline">
+    <div class="panel-head">
+      <h2>Concept Timeline</h2>
+      <p class="panel-desc">Distribution of semantic branches over time. Annotations are counted in each
+        chronological bin their object's dating overlaps.
+        Useful to see, at a glance, when different types of content peak in the corpus.</p>
+    </div>
+    <div class="filter-row">
+      <label>Granularity: <select id="tim-gran">
+        <option value="century">Century (100 years)</option>
+        <option value="half" selected>Half-century (50 years)</option>
+      </select></label>
+      <button class="btn primary" id="tim-go">Load Timeline</button>
+    </div>
+    <div id="tim-chart" class="timeline-chart"></div>
+    <div id="tim-legend" class="timeline-legend"></div>
+  </section>
+
+  <!-- 9. WORK WITNESSES DIFF -->
+  <section class="tab-panel" id="panel-witnesses">
+    <div class="panel-head">
+      <h2>Work Witnesses — Textual Divergence</h2>
+      <p class="panel-desc">Compare the witnesses of a single <em>work</em> (an abstract text
+        attested in multiple inscriptions). The similarity matrix shows how close each pair
+        of witnesses is; the critical apparatus lists the readings that vary from witness
+        to witness. Click a matrix cell to see the line-by-line diff between two witnesses.</p>
+    </div>
+    <div class="filter-row">
+      <label>Work: <select id="wit-work"><option value="">— choose a work —</option></select></label>
+      <label>Version: <select id="wit-vtype">
+        <option value="normalized">normalized</option>
+        <option value="diplomatic_transcription">diplomatic</option>
+        <option value="translation">translation</option>
+      </select></label>
+      <label>N-gram: <input type="number" id="wit-ngram" value="2" min="1" max="5" style="width:60px"></label>
+      <button class="btn primary" id="wit-go">Compare</button>
+    </div>
+    <div id="wit-stats" class="wit-stats"></div>
+    <div class="wit-grid">
+      <div class="wit-col">
+        <h3 class="sub-h">Similarity matrix</h3>
+        <div id="wit-matrix" class="wit-matrix-container"></div>
+      </div>
+      <div class="wit-col">
+        <h3 class="sub-h">Critical apparatus</h3>
+        <div id="wit-apparatus" class="wit-apparatus"></div>
+      </div>
+    </div>
+    <div id="wit-pair" class="wit-pair-container"></div>
+  </section>
+</div>
+
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}

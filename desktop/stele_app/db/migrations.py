@@ -69,5 +69,52 @@ def apply_migrations(conn):
         if _add_column_if_missing(conn, "object", coldef):
             changed.append(f"object.+{coldef.split()[0]}")
 
+    # --- sequence su object_relation (per ordinamento frammenti) -------------
+    if _add_column_if_missing(conn, "object_relation", "sequence INTEGER"):
+        changed.append("object_relation.+sequence")
+
+    # --- relation_type FRAGMENT_OF (se mancante) ----------------------------
+    if not conn.execute(
+        "SELECT 1 FROM relation_type WHERE code='FRAGMENT_OF'"
+    ).fetchone():
+        conn.execute("""
+            INSERT INTO relation_type (code,label,inverse_label,domain,is_symmetric,is_hierarchical)
+            VALUES ('FRAGMENT_OF','fragment of','composed of','object',0,1)
+        """)
+        changed.append("+relation_type.FRAGMENT_OF")
+
+    # --- work (opera intellettuale astratta) + text_document.work_id --------
+    if not _has_table(conn, "work"):
+        conn.execute("""
+          CREATE TABLE work (
+            id                 INTEGER PRIMARY KEY,
+            uid                TEXT NOT NULL UNIQUE,
+            title              TEXT NOT NULL,
+            author             TEXT,
+            work_type          TEXT,
+            canonical_dating   TEXT,
+            composition_from   INTEGER,
+            composition_to     INTEGER,
+            language           TEXT,
+            description        TEXT,
+            bibliography       TEXT,
+            notes              TEXT,
+            is_active          INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0,1)),
+            created_at         TEXT NOT NULL,
+            updated_at         TEXT NOT NULL
+          ) STRICT;""")
+        conn.execute("CREATE INDEX idx_work_title ON work(title)")
+        conn.execute("CREATE INDEX idx_work_type  ON work(work_type)")
+        changed.append("+work")
+
+    if _add_column_if_missing(conn, "text_document",
+                              "work_id INTEGER REFERENCES work(id) ON DELETE SET NULL"):
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_text_document_work "
+                     "ON text_document(work_id)")
+        changed.append("text_document.+work_id")
+
+    if _add_column_if_missing(conn, "text_document", "witness_siglum TEXT"):
+        changed.append("text_document.+witness_siglum")
+
     conn.commit()
     return changed

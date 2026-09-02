@@ -5,3 +5,4 @@ MyEpigraphicProject/
 *.gpkg
 *.gpkg-wal
 *.gpkg-shm
+!stele_app/data/demo_project.gpkg

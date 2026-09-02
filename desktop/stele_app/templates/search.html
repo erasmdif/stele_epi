@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-{% block heading %}Ricerca full-text{% endblock %}
+{% block heading %}Full-text search{% endblock %}
 {% block content %}
 <form class="panel" method="get" style="margin-bottom:16px"><div class="body" style="display:flex;gap:8px">
-  <input name="q" value="{{ q }}" placeholder="Cerca nel testo…" style="flex:1;font:inherit;padding:8px 10px;border:1px solid var(--line-strong);border-radius:var(--radius)">
-  <button class="btn primary">Cerca</button>
+  <input name="q" value="{{ q }}" placeholder="Search the text…" style="flex:1;font:inherit;padding:8px 10px;border:1px solid var(--line-strong);border-radius:var(--radius)">
+  <button class="btn primary">Search</button>
 </div></form>
 {% if q %}
-<div class="panel"><div class="head"><h2>Risultati per «{{ q }}»</h2><span class="muted">{{ results|length }}</span></div>
+<div class="panel"><div class="head"><h2>Results for “{{ q }}”</h2><span class="muted">{{ results|length }}</span></div>
 <div class="body">
   {% for r in results %}
     <div style="padding:8px 0;border-bottom:1px solid var(--line)">
-      <a href="{{ url_for('web.annotate', doc_id=r.document_id) }}"><b>{{ r.title or 'Documento' }}</b></a>
+      <a href="{{ url_for('web.annotate', doc_id=r.document_id) }}"><b>{{ r.title or 'Document' }}</b></a>
       <span class="tag">{{ r.version_type }}</span>
       <div class="muted" style="font-size:13px">{{ r.snip|safe }}</div>
     </div>
-  {% else %}<div class="muted">Nessun risultato.</div>{% endfor %}
+  {% else %}<div class="muted">No results.</div>{% endfor %}
 </div></div>
 {% endif %}
 {% endblock %}
